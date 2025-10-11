@@ -521,20 +521,25 @@
             margin-bottom: 2rem;
         }
 
-        .success-btn {
-            background: linear-gradient(45deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        /* Countdown Styles */
+        .countdown-container {
+            margin-top: 1rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
         }
 
-        .success-btn:hover {
-            background: linear-gradient(45deg, #2980b9, #1f6399);
-            transform: translateY(-2px);
+        .countdown-text {
+            font-size: 1rem;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        .countdown-timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e74c3c;
         }
 
         /* Footer */
@@ -753,9 +758,9 @@
         <div class="hero-content">
             <h1>PEMILIHAN KETUA OSIS</h1>
             <br>
-            <p>Periode 2025/2026 - Masa Depan Sekolah di Tanganmu</p>
+            <p>Periode 2025/2026 - harapan menuju cita-cita tinggi nan mulia</p>
             <br>
-            <a href="#candidates" class="cta-button">PILIH SEKARANG</a>
+            <a href="#candidates" class="cta-button">PILIH KETUA</a>
         </div>
     </section>
 
@@ -769,7 +774,6 @@
                 <div class="candidate-info">
                     <div class="candidate-number">1</div>
                     <h3 class="candidate-name">Calista Almira Dilistiani</h3>
-                    <p class="candidate-class">Kelas: XI 4</p>
                     <p class="candidate-vision">"visi"</p>
                     <button class="btn-vote" onclick="selectCandidate(1)">PILIH</button>
                 </div>
@@ -781,7 +785,6 @@
                 <div class="candidate-info">
                     <div class="candidate-number">2</div>
                     <h3 class="candidate-name">Egi Setiawan</h3>
-                    <p class="candidate-class">Kelas: XI 7</p>
                     <p class="candidate-vision">"visi"</p>
                     <button class="btn-vote" onclick="selectCandidate(2)">PILIH</button>
                 </div>
@@ -793,7 +796,6 @@
                 <div class="candidate-info">
                     <div class="candidate-number">3</div>
                     <h3 class="candidate-name">Revandhika Reswara Kurnia</h3>
-                    <p class="candidate-class">Kelas: XI 7</p>
                     <p class="candidate-vision">"visi"</p>
                     <button class="btn-vote" onclick="selectCandidate(3)">PILIH</button>
                 </div>
@@ -842,8 +844,8 @@
         <div class="popup-content">
             <div class="popup-header">
                 <button class="popup-close" onclick="closeConfirmationPopup()">×</button>
-                <h2>Konfirmasi Pilihan</h2>
-                <p>Pastikan pilihan Anda sudah tepat</p>
+                <h2>Nawasena Arutala</h2>
+                <p>Harapan menuju cita-cita tinggi nan mulia</p>
             </div>
             <div class="popup-body">
                 <div class="popup-candidate" id="popupCandidate">
@@ -873,7 +875,10 @@
                 <div class="success-icon">✓</div>
                 <h2>Terima Kasih!</h2>
                 <p>Suara Anda telah tercatat. Partisipasi Anda sangat berarti untuk kemajuan sekolah.</p>
-                <button class="success-btn" onclick="closeSuccessPopup()">Tutup</button>
+                <div class="countdown-container">
+                    <p class="countdown-text">Halaman akan kembali ke beranda dalam:</p>
+                    <div class="countdown-timer" id="countdownTimer">10 detik</div>
+                </div>
             </div>
         </div>
     </div>
@@ -910,6 +915,7 @@
         };
         
         let selectedCandidateId = null;
+        let countdownInterval = null;
         
         // Mobile menu toggle
         const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
@@ -989,11 +995,43 @@
             
             // Tampilkan popup sukses
             document.getElementById('successPopup').style.display = 'flex';
+            
+            // Mulai countdown
+            startCountdown();
+        }
+        
+        // Fungsi untuk memulai countdown
+        function startCountdown() {
+            let countdown = 10;
+            const countdownTimer = document.getElementById('countdownTimer');
+            
+            // Hapus interval sebelumnya jika ada
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            
+            countdownInterval = setInterval(function() {
+                countdown--;
+                countdownTimer.textContent = `${countdown} detik`;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    closeSuccessPopup();
+                }
+            }, 1000);
         }
         
         // Tutup popup sukses
         function closeSuccessPopup() {
             document.getElementById('successPopup').style.display = 'none';
+            
+            // Hentikan countdown jika masih berjalan
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            
+            // Kembali ke bagian hero
+            document.getElementById('home').scrollIntoView({ behavior: 'smooth' });
         }
         
         // Fungsi untuk memuat data dari localStorage
