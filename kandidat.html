@@ -607,36 +607,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Status Indicator */
-        .status-indicator {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin: 1rem auto;
-            text-align: center;
-            max-width: 300px;
-        }
-        
-        .status-online {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .status-offline {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .last-update {
-            font-size: 0.8rem;
-            color: #666;
-            text-align: center;
-            margin-top: 1rem;
-        }
-
         /* Footer */
         .footer {
             background: rgb(110, 1, 1);
@@ -843,7 +813,6 @@
                     <li><a href="Beranda.html" class="nav-link">Beranda</a></li>
                     <li><a href="Tentang Kami.html" class="nav-link">Tentang Kami</a></li>
                     <li><a href="Informasi.html" class="nav-link">Informasi</a></li>
-                    <li><a href="Pengumuman.html" class="nav-link">Pengumuman</a></li>
                     <li><a href="PILKAOS.html" class="nav-link">Pemilihan</a></li>
                 </ul>
             </nav>
@@ -858,11 +827,6 @@
             <p>suara anda, kekuatan mereka!</p>
         </div>
     </section>
-
-    <!-- Status Indicator -->
-    <div id="statusIndicator" class="status-indicator status-online" style="display: none;">
-        🔄 Memuat data terbaru...
-    </div>
 
     <!-- Candidates Section -->
     <section class="section" id="candidates">
@@ -885,7 +849,7 @@
                 <div class="candidate-info">
                     <div class="candidate-number">2</div>
                     <h3 class="candidate-name">Calista Almira Dilistiani</h3>
-                    <p class="candidate-vision">"<p class="candidate-vision">"VISI:<br>Mewujudkan OSIS SMA Negeri 2 Purwokerto sebagai wadah yang menumbuhkan kepemimpinan, budaya, dan kontribusi nyata berdasarkan nilai SINAR (Solidaritas, Inovasi, Nasionalisme, Apresiasi, Religius.c<br>MISI:<br>1. Menumbuhkan religiusitas dan solidaritas siswa-siswi SMA Negeri 2 Purwokerto<br>2. Mengembangkan kreativitas dan inovasi<br>3. Menjadi wadah apresiasi yang inklusif bagi siswa-siswi SMA Negeri 2 Purwokerto<br>PROGRAM KERJA:<br>SMADA FUTURE FESTIVAL (F2)<br>Wadah yang menggabungkan inspirasi, inovasi, dan apresiasi karya siswa untuk memperluas wawasan dalam bidang STEM.<br>FESTIVAL BUDAYA SMADA<br>Bertujuan melestarikan ragam budaya nusantara dan mancanegara melalui kegiatan partisipatif yang edukatif.<br>"</p>"</p>
+                    <p class="candidate-vision">VISI:<br>Mewujudkan OSIS SMA Negeri 2 Purwokerto sebagai wadah yang menumbuhkan kepemimpinan, budaya, dan kontribusi nyata berdasarkan nilai SINAR (Solidaritas, Inovasi, Nasionalisme, Apresiasi, Religius.c<br>MISI:<br>1. Menumbuhkan religiusitas dan solidaritas siswa-siswi SMA Negeri 2 Purwokerto<br>2. Mengembangkan kreativitas dan inovasi<br>3. Menjadi wadah apresiasi yang inklusif bagi siswa-siswi SMA Negeri 2 Purwokerto<br>PROGRAM KERJA:<br>SMADA FUTURE FESTIVAL (F2)<br>Wadah yang menggabungkan inspirasi, inovasi, dan apresiasi karya siswa untuk memperluas wawasan dalam bidang STEM.<br>FESTIVAL BUDAYA SMADA<br>Bertujuan melestarikan ragam budaya nusantara dan mancanegara melalui kegiatan partisipatif yang edukatif.</p>
                     <button class="btn-vote" onclick="selectCandidate(2)">PILIH</button>
                 </div>
             </div>
@@ -896,7 +860,7 @@
                 <div class="candidate-info">
                     <div class="candidate-number">3</div>
                     <h3 class="candidate-name">Egi Setiawan</h3>
-                    <p class="candidate-vision">"VISI:<br>Menjadikan OSIS sebagai agen pendorong atau wadah untuk mewujudkan generasi yang "Cemerlang", yaitu generasi yang Cerdas, Beriman, Terampil, Kreatif, Inovatif, dan Peduli Lingkungan<br>MISI:<br>1. Penanaman nilai-nilai keimanan, ketaqwaan, dan budaya sopan santun dalam diri siswa-siswi SMA Negeri 2 Purwokerto<br>2. Mengembangkan kecerdasan, keterampilan, kreativitas, dan daya inovasi siswa-siswi SMA Negeri 2 Purwokerto<br>3. Peningkatan semangat peduli dan rasa cinta terhadap lingkungan dalam diri siswa-siwi SMA Negeri 2 Purwokerto<br>PROGJA:<br>SECTRA (Smada Education, Creativity, and Inspiration Arena)<br>Sebuah event yang menjadi puncak dari kegiatan classmeeting hari Bumi dan hari Kartini"</p>
+                    <p class="candidate-vision">VISI:<br>Menjadikan OSIS sebagai agen pendorong atau wadah untuk mewujudkan generasi yang "Cemerlang", yaitu generasi yang Cerdas, Beriman, Terampil, Kreatif, Inovatif, dan Peduli Lingkungan<br>MISI:<br>1. Penanaman nilai-nilai keimanan, ketaqwaan, dan budaya sopan santun dalam diri siswa-siswi SMA Negeri 2 Purwokerto<br>2. Mengembangkan kecerdasan, keterampilan, kreativitas, dan daya inovasi siswa-siswi SMA Negeri 2 Purwokerto<br>3. Peningkatan semangat peduli dan rasa cinta terhadap lingkungan dalam diri siswa-siwi SMA Negeri 2 Purwokerto<br>PROGJA:<br>SECTRA (Smada Education, Creativity, and Inspiration Arena)<br>Sebuah event yang menjadi puncak dari kegiatan classmeeting hari Bumi dan hari Kartini</p>
                     <button class="btn-vote" onclick="selectCandidate(3)">PILIH</button>
                 </div>
             </div>
@@ -911,14 +875,6 @@
                 <div class="loading-spinner"></div>
                 <p>Memuat hasil pemilihan...</p>
             </div>
-            
-            <!-- Refresh Button -->
-            <div style="text-align: center; margin-bottom: 1rem;">
-                <button onclick="forceRefreshResults()" style="padding: 0.5rem 1rem; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                    🔄 Refresh Hasil
-                </button>
-            </div>
-            
             <div class="result-item">
                 <div class="result-header">
                     <span>Revandhika Reswara Kurnia</span>
@@ -947,10 +903,6 @@
                 <div class="result-bar-container">
                     <div class="result-bar" id="voteBar3" style="width: 0%">0%</div>
                 </div>
-            </div>
-            
-            <div class="last-update" id="lastUpdate">
-                Terakhir diperbarui: <span id="updateTime">-</span>
             </div>
         </div>
     </section>
@@ -1010,9 +962,10 @@
         // KONFIGURASI GITHUB API
         // ==============================
         const GITHUB_CONFIG = {
-            owner: 'SmaDoeaPWT',
-            repo: 'MPK-Smada',
-            token: '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',
+            // GANTI DENGAN INFORMASI ANDA
+            owner: 'SmaDoeaPWT', // Username GitHub Anda
+            repo: 'MPK-Smada', // Nama repository
+            token: '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', // GitHub Personal Access Token
             baseURL: 'https://api.github.com'
         };
 
@@ -1025,71 +978,33 @@
                 this.repo = config.repo;
                 this.token = config.token;
                 this.baseURL = config.baseURL;
-                this.cacheBuster = Date.now();
-            }
-
-            // Helper untuk handle request dengan cache busting
-            async makeGitHubRequest(url, options = {}) {
-                const fullUrl = `${url}?t=${this.cacheBuster}`;
-                
-                const defaultOptions = {
-                    headers: {
-                        'Authorization': `token ${this.token}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                };
-
-                const mergedOptions = { ...defaultOptions, ...options };
-                
-                try {
-                    const response = await fetch(fullUrl, mergedOptions);
-                    
-                    // Handle rate limiting
-                    if (response.status === 403) {
-                        const resetTime = response.headers.get('X-RateLimit-Reset');
-                        if (resetTime) {
-                            const waitTime = (resetTime * 1000) - Date.now();
-                            console.warn(`⏳ Rate limit exceeded. Waiting ${Math.ceil(waitTime/1000)} seconds`);
-                            await new Promise(resolve => setTimeout(resolve, waitTime + 1000));
-                            return this.makeGitHubRequest(url, options);
-                        }
-                    }
-                    
-                    return response;
-                } catch (error) {
-                    console.error('❌ Network error:', error);
-                    throw error;
-                }
             }
 
             // Simpan data voting ke GitHub
             async saveVoteData(voteData) {
                 try {
-                    const uniqueId = Math.random().toString(36).substr(2, 9);
-                    const filename = `vote-${voteData.candidateId}-${Date.now()}-${uniqueId}.json`;
+                    const filename = `vote-data-${Date.now()}.json`;
+                    const content = btoa(JSON.stringify(voteData, null, 2));
                     
-                    const content = btoa(unescape(encodeURIComponent(JSON.stringify(voteData, null, 2))));
-                    
-                    const response = await this.makeGitHubRequest(
-                        `${this.baseURL}/repos/${this.owner}/${this.repo}/contents/data/${filename}`,
-                        {
-                            method: 'PUT',
-                            body: JSON.stringify({
-                                message: `Vote for candidate ${voteData.candidateId} - ${new Date().toLocaleString()}`,
-                                content: content,
-                                branch: 'main'
-                            })
-                        }
-                    );
+                    const response = await fetch(`${this.baseURL}/repos/${this.owner}/${this.repo}/contents/data/${filename}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${this.token}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: `Vote data - ${new Date().toISOString()}`,
+                            content: content,
+                            branch: 'main'
+                        })
+                    });
 
-                    if (response.status === 201) {
+                    if (response.ok) {
                         console.log('✅ Data voting berhasil disimpan ke GitHub');
-                        this.cacheBuster = Date.now();
                         return true;
                     } else {
-                        const errorData = await response.json();
-                        console.error('❌ Gagal menyimpan data ke GitHub:', errorData);
+                        const errorText = await response.text();
+                        console.error('❌ Gagal menyimpan data ke GitHub:', errorText);
                         return false;
                     }
                 } catch (error) {
@@ -1101,38 +1016,34 @@
             // Ambil semua data voting
             async getAllVotes() {
                 try {
-                    const response = await this.makeGitHubRequest(
-                        `${this.baseURL}/repos/${this.owner}/${this.repo}/contents/data`
-                    );
+                    const response = await fetch(`${this.baseURL}/repos/${this.owner}/${this.repo}/contents/data`, {
+                        headers: {
+                            'Authorization': `token ${this.token}`
+                        }
+                    });
 
-                    if (response.status === 200) {
+                    if (response.ok) {
                         const files = await response.json();
                         const votes = [];
-                        const filePromises = [];
 
                         for (const file of files) {
-                            if (file.name.endsWith('.json') && file.type === 'file') {
-                                filePromises.push(
-                                    this.processVoteFile(file.download_url)
-                                );
+                            if (file.name.endsWith('.json')) {
+                                try {
+                                    const fileResponse = await fetch(file.download_url);
+                                    if (fileResponse.ok) {
+                                        const voteData = await fileResponse.json();
+                                        votes.push(voteData);
+                                    }
+                                } catch (error) {
+                                    console.warn('⚠️ Gagal memuat file:', file.name, error);
+                                }
                             }
                         }
 
-                        const results = await Promise.allSettled(filePromises);
-                        
-                        results.forEach(result => {
-                            if (result.status === 'fulfilled' && result.value) {
-                                votes.push(result.value);
-                            }
-                        });
-
                         console.log(`✅ Loaded ${votes.length} votes from GitHub`);
                         return votes;
-                    } else if (response.status === 404) {
-                        console.log('📁 Folder data belum ada, akan dibuat otomatis');
-                        return [];
                     } else {
-                        console.error('❌ Gagal mengambil data dari GitHub:', response.status);
+                        console.error('❌ Gagal mengambil data dari GitHub');
                         return [];
                     }
                 } catch (error) {
@@ -1141,23 +1052,14 @@
                 }
             }
 
-            // Process individual vote file
-            async processVoteFile(downloadUrl) {
-                try {
-                    const response = await fetch(`${downloadUrl}?t=${this.cacheBuster}`);
-                    if (response.ok) {
-                        return await response.json();
-                    }
-                } catch (error) {
-                    console.warn('⚠️ Gagal memuat file:', downloadUrl, error);
-                }
-                return null;
-            }
-
             // Hitung total votes dari GitHub
             async calculateVotesFromGitHub() {
                 const votes = await this.getAllVotes();
-                const voteCount = { candidate1: 0, candidate2: 0, candidate3: 0 };
+                const voteCount = {
+                    candidate1: 0,
+                    candidate2: 0,
+                    candidate3: 0
+                };
 
                 votes.forEach(vote => {
                     if (vote.candidateId === 1) voteCount.candidate1++;
@@ -1165,21 +1067,8 @@
                     else if (vote.candidateId === 3) voteCount.candidate3++;
                 });
 
-                console.log('📊 Vote counts:', voteCount);
+                console.log('📊 Vote counts from GitHub:', voteCount);
                 return voteCount;
-            }
-
-            // Test koneksi ke GitHub
-            async testConnection() {
-                try {
-                    const response = await this.makeGitHubRequest(
-                        `${this.baseURL}/repos/${this.owner}/${this.repo}`
-                    );
-                    return response.status === 200;
-                } catch (error) {
-                    console.error('❌ Koneksi GitHub gagal:', error);
-                    return false;
-                }
             }
         }
 
@@ -1187,17 +1076,29 @@
         // INISIALISASI APLIKASI
         // ==============================
         
+        // Data kandidat
         const candidates = {
-            1: { name: "Revandhika Reswara Kurnia", votes: 0, img: "Image/Revan.jpg"},
-            2: { name: "Calista Almira Dilistiani", votes: 0, img: "Image/Calista.jpg"},
-            3: { name: "Egi Setiawan", votes: 0, img: "Image/Egi.jpg"}
+            1: {
+                name: "Revandhika Reswara Kurnia",
+                img: "Image/Revan.jpg",
+                votes: 0
+            },
+            2: {
+                name: "Calista Almira Dilistiani",
+                img: "Image/Calista.jpg",
+                votes: 0
+            },
+            3: {
+                name: "Egi Setiawan",
+                img: "Image/Egi.jpg",
+                votes: 0
+            }
         };
         
         let selectedCandidateId = null;
         let countdownInterval = null;
         let confettiAnimationId = null;
         let confettiParticles = [];
-        let lastUpdateTime = null;
         
         // Buat instance GitHub API
         const githubAPI = new GitHubAPI(GITHUB_CONFIG);
@@ -1205,32 +1106,6 @@
         // ==============================
         // FUNGSI UTAMA
         // ==============================
-
-        // Update status indicator
-        function updateStatus(message, type = 'online') {
-            const indicator = document.getElementById('statusIndicator');
-            indicator.textContent = message;
-            indicator.className = `status-indicator status-${type}`;
-            indicator.style.display = 'block';
-            
-            setTimeout(() => {
-                indicator.style.display = 'none';
-            }, 5000);
-        }
-
-        // Force refresh results
-        async function forceRefreshResults() {
-            updateStatus('🔄 Memuat data terbaru...', 'online');
-            githubAPI.cacheBuster = Date.now();
-            await updateResults();
-        }
-
-        // Update last update time
-        function updateLastUpdateTime() {
-            lastUpdateTime = new Date();
-            const timeString = lastUpdateTime.toLocaleTimeString('id-ID');
-            document.getElementById('updateTime').textContent = timeString;
-        }
 
         // Mobile menu toggle
         const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
@@ -1257,11 +1132,12 @@
             }
         });
         
-        // Fungsi untuk memilih kandidat
+        // Fungsi untuk memilih kandidat - langsung tampilkan popup
         function selectCandidate(candidateId) {
             selectedCandidateId = candidateId;
             const candidate = candidates[candidateId];
             
+            // Tampilkan popup konfirmasi langsung
             document.getElementById('popupImg').src = candidate.img;
             document.getElementById('popupName').textContent = candidate.name;
             document.getElementById('popupVision').textContent = candidate.vision;
@@ -1278,118 +1154,64 @@
         async function submitVote() {
             if (!selectedCandidateId) return;
             
+            // Tampilkan loading indicator
             document.getElementById('loadingIndicator').style.display = 'block';
-            updateStatus('📤 Mengirim data vote...', 'online');
             
             try {
-                // Test koneksi dulu
-                const isConnected = await githubAPI.testConnection();
-                if (!isConnected) {
-                    throw new Error('Tidak dapat terhubung ke GitHub');
-                }
-
+                // Data voting
                 const voteData = {
                     candidateId: selectedCandidateId,
                     candidateName: candidates[selectedCandidateId].name,
                     timestamp: new Date().toISOString(),
-                    userAgent: navigator.userAgent.substring(0, 100),
+                    userAgent: navigator.userAgent,
                     screenResolution: `${screen.width}x${screen.height}`,
                     language: navigator.language,
-                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                    deviceId: localStorage.getItem('deviceId') || generateDeviceId()
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
                 };
 
-                // Generate device ID jika belum ada
-                if (!localStorage.getItem('deviceId')) {
-                    localStorage.setItem('deviceId', voteData.deviceId);
-                }
-
+                // Simpan ke localStorage (fallback)
+                saveVotesToStorage();
+                
                 // Simpan ke GitHub
                 const githubSuccess = await githubAPI.saveVoteData(voteData);
                 
                 if (githubSuccess) {
-                    updateStatus('✅ Vote berhasil disimpan!', 'online');
-                    
-                    // Refresh results setelah vote
-                    setTimeout(async () => {
-                        await updateResults();
-                    }, 1000);
-                    
+                    console.log('✅ Vote berhasil disimpan ke GitHub');
                 } else {
-                    updateStatus('❌ Gagal menyimpan vote', 'offline');
-                    throw new Error('Gagal menyimpan ke GitHub');
+                    console.log('⚠️ Vote disimpan lokal saja (GitHub gagal)');
                 }
 
+                // Perbarui tampilan hasil
+                await updateResults();
+                
+                // Tutup popup konfirmasi
                 closeConfirmationPopup();
+                
+                // Tampilkan popup sukses
                 document.getElementById('successPopup').style.display = 'flex';
+                
+                // Mulai efek bom confetti
                 startBombConfetti();
+                
+                // Mulai countdown
                 startCountdown();
                 
             } catch (error) {
                 console.error('❌ Error dalam submit vote:', error);
-                updateStatus('❌ Gagal menyimpan vote', 'offline');
                 alert('Terjadi kesalahan saat menyimpan vote. Silakan coba lagi.');
             } finally {
+                // Sembunyikan loading indicator
                 document.getElementById('loadingIndicator').style.display = 'none';
             }
         }
-
-        // Generate unique device ID
-        function generateDeviceId() {
-            return 'device-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now().toString(36);
-        }
-
-        // Update hasil pemilihan
-        async function updateResults() {
-            try {
-                document.getElementById('resultsLoading').style.display = 'block';
-                updateStatus('📊 Memuat hasil terbaru...', 'online');
-                
-                const githubVotes = await githubAPI.calculateVotesFromGitHub();
-                console.log('✅ Data dari GitHub:', githubVotes);
-
-                // Update candidates data dari GitHub
-                candidates[1].votes = githubVotes.candidate1;
-                candidates[2].votes = githubVotes.candidate2;
-                candidates[3].votes = githubVotes.candidate3;
-
-                const totalVotes = githubVotes.candidate1 + githubVotes.candidate2 + githubVotes.candidate3;
-                
-                // Update UI
-                for (let i = 1; i <= 3; i++) {
-                    const candidate = candidates[i];
-                    const percentage = totalVotes > 0 ? Math.round((candidate.votes / totalVotes) * 100) : 0;
-                    
-                    document.getElementById(`voteCount${i}`).textContent = candidate.votes;
-                    document.getElementById(`voteBar${i}`).style.width = `${percentage}%`;
-                    document.getElementById(`voteBar${i}`).textContent = `${percentage}%`;
-                }
-                
-                updateLastUpdateTime();
-                updateStatus(`✅ Data terbaru loaded - Total: ${totalVotes} votes`, 'online');
-                
-            } catch (error) {
-                console.error('❌ Error updating results:', error);
-                updateStatus('❌ Gagal memuat data', 'offline');
-                
-                // Reset ke 0 jika gagal load data
-                for (let i = 1; i <= 3; i++) {
-                    document.getElementById(`voteCount${i}`).textContent = '0';
-                    document.getElementById(`voteBar${i}`).style.width = '0%';
-                    document.getElementById(`voteBar${i}`).textContent = '0%';
-                }
-                
-                updateLastUpdateTime();
-            } finally {
-                document.getElementById('resultsLoading').style.display = 'none';
-            }
-        }
-
+        
         // Fungsi untuk efek bom confetti yang langsung meledak
         function startBombConfetti() {
+            // Tampilkan efek ledakan
             const explosionEffect = document.getElementById('explosionEffect');
             explosionEffect.style.display = 'block';
             
+            // Mulai confetti setelah ledakan
             setTimeout(() => {
                 explosionEffect.style.display = 'none';
                 startConfettiExplosion();
@@ -1405,9 +1227,11 @@
             canvas.style.display = 'block';
             canvas.classList.remove('fade-out');
             
+            // Reset partikel
             confettiParticles = [];
             const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#1abc9c', '#e67e22', '#FF6B00', '#FFD700', '#FF4081'];
             
+            // Buat partikel confetti explosion dari tengah
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
             
@@ -1438,8 +1262,9 @@
             }
             
             let startTime = Date.now();
-            const duration = 6000;
+            const duration = 6000; // 6 detik
             
+            // Animasi confetti explosion
             function animateConfetti() {
                 const currentTime = Date.now();
                 const elapsed = currentTime - startTime;
@@ -1450,6 +1275,7 @@
                 let activeParticles = 0;
                 
                 confettiParticles.forEach(particle => {
+                    // Update fisika partikel
                     particle.velocityY += particle.gravity;
                     particle.velocityX *= particle.resistance;
                     particle.velocityY *= particle.resistance;
@@ -1459,10 +1285,12 @@
                     particle.rotation += particle.rotationSpeed;
                     particle.wobble = Math.sin(particle.rotation * particle.wobbleSpeed) * 2;
                     
+                    // Fade out gradual
                     if (progress > 0.5) {
                         particle.life = Math.max(0, particle.life - particle.fadeSpeed);
                     }
                     
+                    // Gambar confetti dengan opacity
                     ctx.save();
                     ctx.translate(particle.x, particle.y);
                     ctx.rotate(particle.rotation * Math.PI / 180);
@@ -1474,6 +1302,7 @@
                         ctx.arc(0, 0, particle.size / 2, 0, Math.PI * 2);
                         ctx.fill();
                     } else {
+                        // Rectangle dengan variasi
                         const width = particle.size;
                         const height = particle.size * (0.5 + Math.random() * 0.5);
                         ctx.fillRect(-width / 2, -height / 2, width, height);
@@ -1481,14 +1310,17 @@
                     
                     ctx.restore();
                     
+                    // Hitung partikel aktif
                     if (particle.y < canvas.height && particle.life > 0) {
                         activeParticles++;
                     }
                 });
                 
+                // Lanjutkan animasi jika masih ada partikel aktif
                 if (activeParticles > 0 || progress < 0.8) {
                     confettiAnimationId = requestAnimationFrame(animateConfetti);
                 } else {
+                    // Smooth fade out canvas
                     canvas.classList.add('fade-out');
                     setTimeout(() => {
                         canvas.style.display = 'none';
@@ -1507,6 +1339,7 @@
             let countdown = 10;
             const countdownTimer = document.getElementById('countdownTimer');
             
+            // Hapus interval sebelumnya jika ada
             if (countdownInterval) {
                 clearInterval(countdownInterval);
             }
@@ -1526,45 +1359,105 @@
         function closeSuccessPopup() {
             document.getElementById('successPopup').style.display = 'none';
             
+            // Hentikan countdown jika masih berjalan
             if (countdownInterval) {
                 clearInterval(countdownInterval);
             }
             
+            // Hentikan animasi confetti jika masih berjalan
             if (confettiAnimationId) {
                 cancelAnimationFrame(confettiAnimationId);
             }
             
+            // Kembali ke halaman beranda
             window.location.href = 'PILKAOS.html';
+        }
+        
+        // Fungsi untuk memuat data dari localStorage
+        function loadVotesFromStorage() {
+            const savedVotes = localStorage.getItem('osisElectionVotes');
+            if (savedVotes) {
+                const votesData = JSON.parse(savedVotes);
+                candidates[1].votes = votesData.candidate1 || 0;
+                candidates[2].votes = votesData.candidate2 || 0;
+                candidates[3].votes = votesData.candidate3 || 0;
+            }
+        }
+        
+        // Fungsi untuk menyimpan data ke localStorage
+        function saveVotesToStorage() {
+            const votesData = {
+                candidate1: candidates[1].votes,
+                candidate2: candidates[2].votes,
+                candidate3: candidates[3].votes
+            };
+            localStorage.setItem('osisElectionVotes', JSON.stringify(votesData));
+        }
+        
+        // Update hasil pemilihan
+        async function updateResults() {
+            try {
+                // Tampilkan loading
+                document.getElementById('resultsLoading').style.display = 'block';
+                
+                // Coba ambil data dari GitHub terlebih dahulu
+                const githubVotes = await githubAPI.calculateVotesFromGitHub();
+                
+                // Gunakan data dari GitHub jika tersedia, fallback ke localStorage
+                if (githubVotes.candidate1 > 0 || githubVotes.candidate2 > 0 || githubVotes.candidate3 > 0) {
+                    candidates[1].votes = githubVotes.candidate1;
+                    candidates[2].votes = githubVotes.candidate2;
+                    candidates[3].votes = githubVotes.candidate3;
+                } else {
+                    // Fallback ke localStorage
+                    loadVotesFromStorage();
+                }
+                
+                const totalVotes = candidates[1].votes + candidates[2].votes + candidates[3].votes;
+                
+                for (let i = 1; i <= 3; i++) {
+                    const candidate = candidates[i];
+                    const percentage = totalVotes > 0 ? Math.round((candidate.votes / totalVotes) * 100) : 0;
+                    
+                    document.getElementById(`voteCount${i}`).textContent = candidate.votes;
+                    document.getElementById(`voteBar${i}`).style.width = `${percentage}%`;
+                    document.getElementById(`voteBar${i}`).textContent = `${percentage}%`;
+                }
+                
+            } catch (error) {
+                console.error('Error updating results:', error);
+                // Fallback ke localStorage saja
+                loadVotesFromStorage();
+                const totalVotes = candidates[1].votes + candidates[2].votes + candidates[3].votes;
+                
+                for (let i = 1; i <= 3; i++) {
+                    const candidate = candidates[i];
+                    const percentage = totalVotes > 0 ? Math.round((candidate.votes / totalVotes) * 100) : 0;
+                    
+                    document.getElementById(`voteCount${i}`).textContent = candidate.votes;
+                    document.getElementById(`voteBar${i}`).style.width = `${percentage}%`;
+                    document.getElementById(`voteBar${i}`).textContent = `${percentage}%`;
+                }
+            } finally {
+                // Sembunyikan loading
+                document.getElementById('resultsLoading').style.display = 'none';
+            }
         }
         
         // Inisialisasi saat halaman dimuat
         window.onload = async function() {
-            // Generate device ID jika belum ada
-            if (!localStorage.getItem('deviceId')) {
-                localStorage.setItem('deviceId', generateDeviceId());
-            }
-            
-            console.log('Device ID:', localStorage.getItem('deviceId'));
-            
             // Load data awal
             await updateResults();
             
-            // Auto-refresh results every 15 seconds
-            setInterval(updateResults, 15000);
-            
-            // Juga refresh ketika tab menjadi active
-            document.addEventListener('visibilitychange', function() {
-                if (!document.hidden) {
-                    updateResults();
-                }
-            });
-
-            // Handle resize window
+            // Handle resize window untuk confetti canvas
             window.addEventListener('resize', function() {
                 const canvas = document.getElementById('confetti-canvas');
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
             });
+
+            // Auto-refresh results every 30 seconds
+            setInterval(updateResults, 30000);
         };
     </script>
 </body>
