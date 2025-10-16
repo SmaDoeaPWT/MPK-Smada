@@ -517,27 +517,6 @@
             margin-bottom: 2rem;
         }
 
-        /* Countdown Styles */
-        .countdown-container {
-            margin-top: 1rem;
-            padding: 1.5rem;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border: 1px solid #e9ecef;
-        }
-
-        .countdown-text {
-            font-size: 1rem;
-            color: #495057;
-            margin-bottom: 0.5rem;
-        }
-
-        .countdown-timer {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #e74c3c;
-        }
-
         /* Confetti Canvas */
         #confetti-canvas {
             position: fixed;
@@ -943,7 +922,6 @@
                 <div class="success-icon">✓</div>
                 <h2>Terima Kasih</h2>
                 <p>Pilihan tercatat! Partisipasi Anda jadi bahan bakar perubahan positif di sekolah.</p>
-                </div>
             </div>
         </div>
     </div>
@@ -963,7 +941,7 @@
             // GANTI DENGAN INFORMASI ANDA
             owner: 'SmaDoeaPWT', // Username GitHub Anda
             repo: 'MPK-Smada', // Nama repository
-            token: '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', // GitHub Personal Access Token
+            token: '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', // GitHub Personal Access Token Anda
             baseURL: 'https://api.github.com'
         };
 
@@ -1138,7 +1116,6 @@
             // Tampilkan popup konfirmasi langsung
             document.getElementById('popupImg').src = candidate.img;
             document.getElementById('popupName').textContent = candidate.name;
-            document.getElementById('popupVision').textContent = candidate.vision;
             document.getElementById('confirmationPopup').style.display = 'flex';
         }
         
@@ -1191,7 +1168,7 @@
                 // Mulai efek bom confetti
                 startBombConfetti();
                 
-                // Mulai countdown
+                // Mulai countdown (tanpa menampilkan timer)
                 startCountdown();
                 
             } catch (error) {
@@ -1332,10 +1309,9 @@
             animateConfetti();
         }
         
-        // Fungsi untuk memulai countdown
+        // Fungsi untuk memulai countdown (tanpa menampilkan timer)
         function startCountdown() {
             let countdown = 10;
-            const countdownTimer = document.getElementById('countdownTimer');
             
             // Hapus interval sebelumnya jika ada
             if (countdownInterval) {
@@ -1344,7 +1320,6 @@
             
             countdownInterval = setInterval(function() {
                 countdown--;
-                countdownTimer.textContent = `${countdown} detik`;
                 
                 if (countdown <= 0) {
                     clearInterval(countdownInterval);
