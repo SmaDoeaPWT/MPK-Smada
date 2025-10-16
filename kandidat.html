@@ -584,7 +584,7 @@
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+           100% { transform: rotate(360deg); }
         }
 
         /* Footer */
@@ -965,7 +965,7 @@
                 };
             }
 
-            // Simpan data voting ke GitHub - VERSI YANG DIPERBAIKI
+            // PERBAIKAN: Simpan data voting ke GitHub dengan error handling yang lebih baik
             async saveVoteData(voteData) {
                 try {
                     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -993,22 +993,30 @@
                     
                     if (response.ok) {
                         console.log('✅ Data voting berhasil disimpan ke GitHub:', result);
-                        return true;
+                        return { success: true, data: result };
                     } else {
                         console.error('❌ Gagal menyimpan data ke GitHub:', result);
-                        return false;
+                        return { 
+                            success: false, 
+                            error: result.message || 'Gagal menyimpan data',
+                            status: response.status
+                        };
                     }
                 } catch (error) {
                     console.error('❌ Error menyimpan data ke GitHub:', error);
-                    return false;
+                    return { 
+                        success: false, 
+                        error: error.message || 'Network error'
+                    };
                 }
             }
 
-            // Ambil semua data voting - VERSI YANG DIPERBAIKI
+            // PERBAIKAN: Ambil semua data voting dengan metode yang lebih reliable
             async getAllVotes() {
                 try {
                     console.log('🔄 Mengambil data voting dari GitHub...');
                     
+                    // Coba ambil daftar file dari folder data
                     const response = await fetch(
                         `${this.baseURL}/repos/${this.owner}/${this.repo}/contents/data`,
                         {
@@ -1017,6 +1025,11 @@
                     );
 
                     if (!response.ok) {
+                        // Jika folder data belum ada, return array kosong
+                        if (response.status === 404) {
+                            console.log('📁 Folder data belum ada, membuat yang baru...');
+                            return [];
+                        }
                         throw new Error(`GitHub API error: ${response.status}`);
                     }
 
@@ -1027,6 +1040,7 @@
                     for (const file of files) {
                         if (file.name.endsWith('.json') && file.type === 'file') {
                             try {
+                                // Gunakan download_url untuk menghindari rate limiting
                                 const fileResponse = await fetch(file.download_url);
                                 if (fileResponse.ok) {
                                     const voteData = await fileResponse.json();
@@ -1039,14 +1053,16 @@
                         }
                     }
 
+                    console.log(`📊 Total votes yang berhasil dimuat: ${votes.length}`);
                     return votes;
+
                 } catch (error) {
                     console.error('❌ Error mengambil data dari GitHub:', error);
                     return [];
                 }
             }
 
-            // Hitung total votes - VERSI YANG DIPERBAIKI
+            // PERBAIKAN: Hitung total votes dengan logging yang lebih detail
             async calculateVotesFromGitHub() {
                 try {
                     const votes = await this.getAllVotes();
@@ -1102,7 +1118,7 @@
         const githubAPI = new GitHubAPI(GITHUB_CONFIG);
 
         // ==============================
-        // FUNGSI UTAMA
+        // FUNGSI UTAMA YANG DIPERBAIKI
         // ==============================
 
         // Mobile menu toggle
@@ -1146,7 +1162,7 @@
             selectedCandidateId = null;
         }
         
-        // Submit suara dengan GitHub API
+        // PERBAIKAN: Submit suara dengan GitHub API yang lebih robust
         async function submitVote() {
             if (!selectedCandidateId) return;
             
@@ -1163,25 +1179,49 @@
                     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
                 };
 
-                // Simpan vote
-                const success = await githubAPI.saveVoteData(voteData);
+                console.log('🗳️ Mengirim vote:', voteData);
+
+                // Simpan vote ke GitHub
+                const result = await githubAPI.saveVoteData(voteData);
                 
-                if (success) {
-                    console.log('✅ Vote berhasil disimpan');
+                if (result.success) {
+                    console.log('✅ Vote berhasil disimpan ke GitHub');
+                    
+                    // Tutup popup konfirmasi
                     closeConfirmationPopup();
+                    
+                    // Tampilkan popup sukses
                     document.getElementById('successPopup').style.display = 'flex';
+                    
+                    // Jalankan efek confetti
                     startBombConfetti();
+                    
+                    // Mulai countdown
                     startCountdown();
                     
-                    // Update hasil setelah vote berhasil
-                    setTimeout(updateResults, 2000);
+                    // PERBAIKAN: Update hasil secara langsung tanpa delay
+                    await updateResults();
+                    
                 } else {
-                    throw new Error('Gagal menyimpan vote ke GitHub');
+                    // Tampilkan error yang lebih spesifik
+                    let errorMessage = 'Gagal menyimpan vote. ';
+                    
+                    if (result.status === 404) {
+                        errorMessage += 'Folder data tidak ditemukan.';
+                    } else if (result.status === 403) {
+                        errorMessage += 'Token GitHub tidak valid atau tidak memiliki permission.';
+                    } else if (result.status === 401) {
+                        errorMessage += 'Unauthorized. Periksa token GitHub Anda.';
+                    } else {
+                        errorMessage += `Error: ${result.error}`;
+                    }
+                    
+                    throw new Error(errorMessage);
                 }
                 
             } catch (error) {
                 console.error('❌ Error dalam submit vote:', error);
-                alert('Terjadi kesalahan saat menyimpan vote. Silakan coba lagi.');
+                alert(`Terjadi kesalahan: ${error.message}`);
             } finally {
                 document.getElementById('loadingIndicator').style.display = 'none';
             }
@@ -1350,10 +1390,10 @@
             }
             
             // Kembali ke halaman beranda
-            window.location.href = 'PILKAOS.html';
+            window.location.href = 'Beranda.html';
         }
         
-        // Update hasil pemilihan - DIPERBAIKI
+        // PERBAIKAN: Update hasil pemilihan dengan error handling yang lebih baik
         async function updateResults() {
             try {
                 console.log('🔄 Memulai update hasil...');
@@ -1400,6 +1440,8 @@
         // Inisialisasi saat halaman dimuat
         window.onload = async function() {
             console.log('🚀 Aplikasi dimulai...');
+            
+            // Load hasil awal
             await updateResults();
             
             window.addEventListener('resize', function() {
