@@ -935,13 +935,13 @@
 
     <script>
         // ==============================
-        // KONFIGURASI GITHUB API YANG DIPERBAIKI
+        // KONFIGURASI GITHUB API DENGAN TOKEN BARU
         // ==============================
         const GITHUB_CONFIG = {
             owner: 'SmaDoeaPWT',
             repo: 'MPK-Smada', 
-            // Token GitHub yang valid - pastikan token memiliki permission repo
-            token: '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',
+            // TOKEN BARU ANDA
+            token: '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',
             baseURL: 'https://api.github.com'
         };
 
@@ -965,7 +965,7 @@
                 };
             }
 
-            // PERBAIKAN: Simpan data voting ke GitHub dengan error handling yang lebih baik
+            // Simpan data voting ke GitHub
             async saveVoteData(voteData) {
                 try {
                     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -1011,12 +1011,11 @@
                 }
             }
 
-            // PERBAIKAN: Ambil semua data voting dengan metode yang lebih reliable
+            // Ambil semua data voting
             async getAllVotes() {
                 try {
                     console.log('🔄 Mengambil data voting dari GitHub...');
                     
-                    // Coba ambil daftar file dari folder data
                     const response = await fetch(
                         `${this.baseURL}/repos/${this.owner}/${this.repo}/contents/data`,
                         {
@@ -1025,9 +1024,8 @@
                     );
 
                     if (!response.ok) {
-                        // Jika folder data belum ada, return array kosong
                         if (response.status === 404) {
-                            console.log('📁 Folder data belum ada, membuat yang baru...');
+                            console.log('📁 Folder data belum ada');
                             return [];
                         }
                         throw new Error(`GitHub API error: ${response.status}`);
@@ -1036,11 +1034,9 @@
                     const files = await response.json();
                     const votes = [];
 
-                    // Proses setiap file JSON
                     for (const file of files) {
                         if (file.name.endsWith('.json') && file.type === 'file') {
                             try {
-                                // Gunakan download_url untuk menghindari rate limiting
                                 const fileResponse = await fetch(file.download_url);
                                 if (fileResponse.ok) {
                                     const voteData = await fileResponse.json();
@@ -1062,7 +1058,7 @@
                 }
             }
 
-            // PERBAIKAN: Hitung total votes dengan logging yang lebih detail
+            // Hitung total votes
             async calculateVotesFromGitHub() {
                 try {
                     const votes = await this.getAllVotes();
@@ -1098,6 +1094,35 @@
                     };
                 }
             }
+
+            // Buat folder data jika belum ada
+            async createDataFolder() {
+                try {
+                    const response = await fetch(
+                        `${this.baseURL}/repos/${this.owner}/${this.repo}/contents/data/.gitkeep`,
+                        {
+                            method: 'PUT',
+                            headers: this.getHeaders(),
+                            body: JSON.stringify({
+                                message: 'Create data folder',
+                                content: btoa(''),
+                                branch: 'main'
+                            })
+                        }
+                    );
+                    
+                    if (response.ok) {
+                        console.log('✅ Folder data berhasil dibuat');
+                        return true;
+                    } else {
+                        console.log('ℹ️ Folder data mungkin sudah ada');
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('❌ Error membuat folder data:', error);
+                    return false;
+                }
+            }
         }
 
         // ==============================
@@ -1118,7 +1143,7 @@
         const githubAPI = new GitHubAPI(GITHUB_CONFIG);
 
         // ==============================
-        // FUNGSI UTAMA YANG DIPERBAIKI
+        // FUNGSI UTAMA
         // ==============================
 
         // Mobile menu toggle
@@ -1162,7 +1187,7 @@
             selectedCandidateId = null;
         }
         
-        // PERBAIKAN: Submit suara dengan GitHub API yang lebih robust
+        // Submit suara dengan GitHub API
         async function submitVote() {
             if (!selectedCandidateId) return;
             
@@ -1187,27 +1212,34 @@
                 if (result.success) {
                     console.log('✅ Vote berhasil disimpan ke GitHub');
                     
-                    // Tutup popup konfirmasi
                     closeConfirmationPopup();
-                    
-                    // Tampilkan popup sukses
                     document.getElementById('successPopup').style.display = 'flex';
-                    
-                    // Jalankan efek confetti
                     startBombConfetti();
-                    
-                    // Mulai countdown
                     startCountdown();
                     
-                    // PERBAIKAN: Update hasil secara langsung tanpa delay
+                    // Update hasil secara langsung
                     await updateResults();
                     
                 } else {
-                    // Tampilkan error yang lebih spesifik
                     let errorMessage = 'Gagal menyimpan vote. ';
                     
                     if (result.status === 404) {
-                        errorMessage += 'Folder data tidak ditemukan.';
+                        errorMessage += 'Folder data tidak ditemukan. Mencoba membuat folder...';
+                        console.log('🔄 Mencoba membuat folder data...');
+                        
+                        const folderCreated = await githubAPI.createDataFolder();
+                        if (folderCreated) {
+                            const retryResult = await githubAPI.saveVoteData(voteData);
+                            if (retryResult.success) {
+                                console.log('✅ Vote berhasil disimpan setelah membuat folder');
+                                closeConfirmationPopup();
+                                document.getElementById('successPopup').style.display = 'flex';
+                                startBombConfetti();
+                                startCountdown();
+                                await updateResults();
+                                return;
+                            }
+                        }
                     } else if (result.status === 403) {
                         errorMessage += 'Token GitHub tidak valid atau tidak memiliki permission.';
                     } else if (result.status === 401) {
@@ -1227,13 +1259,11 @@
             }
         }
         
-        // Fungsi untuk efek bom confetti yang langsung meledak
+        // Fungsi untuk efek bom confetti
         function startBombConfetti() {
-            // Tampilkan efek ledakan
             const explosionEffect = document.getElementById('explosionEffect');
             explosionEffect.style.display = 'block';
             
-            // Mulai confetti setelah ledakan
             setTimeout(() => {
                 explosionEffect.style.display = 'none';
                 startConfettiExplosion();
@@ -1249,11 +1279,9 @@
             canvas.style.display = 'block';
             canvas.classList.remove('fade-out');
             
-            // Reset partikel
             confettiParticles = [];
             const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#1abc9c', '#e67e22', '#FF6B00', '#FFD700', '#FF4081'];
             
-            // Buat partikel confetti explosion dari tengah
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
             
@@ -1284,9 +1312,8 @@
             }
             
             let startTime = Date.now();
-            const duration = 6000; // 6 detik
+            const duration = 6000;
             
-            // Animasi confetti explosion
             function animateConfetti() {
                 const currentTime = Date.now();
                 const elapsed = currentTime - startTime;
@@ -1297,7 +1324,6 @@
                 let activeParticles = 0;
                 
                 confettiParticles.forEach(particle => {
-                    // Update fisika partikel
                     particle.velocityY += particle.gravity;
                     particle.velocityX *= particle.resistance;
                     particle.velocityY *= particle.resistance;
@@ -1307,12 +1333,10 @@
                     particle.rotation += particle.rotationSpeed;
                     particle.wobble = Math.sin(particle.rotation * particle.wobbleSpeed) * 2;
                     
-                    // Fade out gradual
                     if (progress > 0.5) {
                         particle.life = Math.max(0, particle.life - particle.fadeSpeed);
                     }
                     
-                    // Gambar confetti dengan opacity
                     ctx.save();
                     ctx.translate(particle.x, particle.y);
                     ctx.rotate(particle.rotation * Math.PI / 180);
@@ -1324,7 +1348,6 @@
                         ctx.arc(0, 0, particle.size / 2, 0, Math.PI * 2);
                         ctx.fill();
                     } else {
-                        // Rectangle dengan variasi
                         const width = particle.size;
                         const height = particle.size * (0.5 + Math.random() * 0.5);
                         ctx.fillRect(-width / 2, -height / 2, width, height);
@@ -1332,17 +1355,14 @@
                     
                     ctx.restore();
                     
-                    // Hitung partikel aktif
                     if (particle.y < canvas.height && particle.life > 0) {
                         activeParticles++;
                     }
                 });
                 
-                // Lanjutkan animasi jika masih ada partikel aktif
                 if (activeParticles > 0 || progress < 0.8) {
                     confettiAnimationId = requestAnimationFrame(animateConfetti);
                 } else {
-                    // Smooth fade out canvas
                     canvas.classList.add('fade-out');
                     setTimeout(() => {
                         canvas.style.display = 'none';
@@ -1356,11 +1376,10 @@
             animateConfetti();
         }
         
-        // Fungsi untuk memulai countdown (tanpa menampilkan timer)
+        // Fungsi untuk memulai countdown
         function startCountdown() {
             let countdown = 10;
             
-            // Hapus interval sebelumnya jika ada
             if (countdownInterval) {
                 clearInterval(countdownInterval);
             }
@@ -1379,30 +1398,25 @@
         function closeSuccessPopup() {
             document.getElementById('successPopup').style.display = 'none';
             
-            // Hentikan countdown jika masih berjalan
             if (countdownInterval) {
                 clearInterval(countdownInterval);
             }
             
-            // Hentikan animasi confetti jika masih berjalan
             if (confettiAnimationId) {
                 cancelAnimationFrame(confettiAnimationId);
             }
             
-            // Kembali ke halaman beranda
             window.location.href = 'Beranda.html';
         }
         
-        // PERBAIKAN: Update hasil pemilihan dengan error handling yang lebih baik
+        // Update hasil pemilihan
         async function updateResults() {
             try {
                 console.log('🔄 Memulai update hasil...');
                 document.getElementById('resultsLoading').style.display = 'block';
                 
-                // Ambil data terbaru dari GitHub
                 const githubVotes = await githubAPI.calculateVotesFromGitHub();
                 
-                // Update data kandidat
                 candidates[1].votes = githubVotes.candidate1;
                 candidates[2].votes = githubVotes.candidate2; 
                 candidates[3].votes = githubVotes.candidate3;
@@ -1425,7 +1439,6 @@
                 
             } catch (error) {
                 console.error('❌ Error updating results:', error);
-                // Tampilkan data kosong jika gagal
                 for (let i = 1; i <= 3; i++) {
                     document.getElementById(`voteCount${i}`).textContent = '0';
                     document.getElementById(`voteBar${i}`).style.width = '0%';
@@ -1440,6 +1453,9 @@
         // Inisialisasi saat halaman dimuat
         window.onload = async function() {
             console.log('🚀 Aplikasi dimulai...');
+            
+            // Pastikan folder data ada
+            await githubAPI.createDataFolder();
             
             // Load hasil awal
             await updateResults();
