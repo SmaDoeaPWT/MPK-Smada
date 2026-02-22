@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Website resmi MPK SMA Negeri 2 Purwokerto - Wadah aspirasi siswa">
+    <title>MPK-SMADA | Tentang Kami</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        /* Header & Navigation */
+        .header {
+            background: rgb(110, 1, 1);
+            backdrop-filter: blur(20px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            display: flex;
+            transition: all 0.3s ease;
+        }
+
+        .logo img {
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+        }
+
+        .header.scrolled .logo {
+            color: #2c3e50;
+            text-shadow: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .header.scrolled .nav-link {
+            color: #2c3e50;
+            text-shadow: none;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #ffffff, #e74c3c);
+            transition: width 0.3s ease;
+        }
+
+        .header.scrolled .nav-link::after {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-link:hover {
+            color: #e74c3c;
+            transform: translateY(-2px);
+        }
+
+        .header.scrolled .nav-link:hover {
+            color: #3498db;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled .mobile-menu-toggle {
+            color: #dd463c;
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: 120px 0 60px;
+            text-align: center;
+            background: linear-gradient(135deg, #5f010d, #781f19);
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        .breadcrumb li {
+            margin: 0 0.5rem;
+        }
+        
+        .breadcrumb li:not(:last-child)::after {
+            content: "›";
+            margin-left: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        /* Stats Section */
+        .stats {
+            background: linear-gradient(135deg, #5f010d, #781f19);
+            color: white;
+            padding: 4rem 0;
+            margin: 3rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='0.1' d='M0,128L48,117.3C96,107,192,85,288,112C384,139,480,213,576,218.7C672,224,768,160,864,138.7C960,117,1056,139,1152,149.3C1248,160,1344,160,1392,160L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: bottom;
+            opacity: 0.1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Sections */
+        .section {
+            padding: 5rem 0;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border-radius: 2px;
+        }
+
+        /* Services Section */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .service-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .service-icon {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .service-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .service-card:hover .service-icon img {
+            transform: scale(1.05);
+        }
+
+        .service-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+            position: relative;
+            display: inline-block;
+        }
+
+        .service-card h4::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            transition: width 0.3s ease;
+        }
+
+        .service-card:hover h4::after {
+            width: 50%;
+        }
+
+        .service-card p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            flex-grow: 1;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Tombol Baca Selengkapnya - Improved */
+        .read-more-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 0.85rem 1.75rem;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 700;
+            transition: all 0.4s ease;
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+            font-size: 0.95rem;
+            margin-top: auto;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+        }
+
+        .read-more-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .read-more-btn:hover::before {
+            left: 100%;
+        }
+
+        .read-more-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(231, 76, 60, 0.5);
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+        }
+
+        .read-more-btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .read-more-btn i {
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .read-more-btn:hover i {
+            transform: translateX(4px);
+        }
+
+        /* Footer */
+        .footer {
+            background: rgb(110, 1, 1);
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: #3498db;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: #bdc3c7;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .footer-section a:hover {
+            color: #3498db;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #34495e;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            color: #bdc3c7;
+        }
+
+        .footer-bottom button {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .footer-bottom button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-menu {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 80px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding-top: 2rem;
+                transition: left 0.3s ease;
+                border-top: 1px solid rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-menu .nav-link {
+                color: #2c3e50;
+                text-shadow: none;
+                font-size: 1.2rem;
+                padding: 1rem 0;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 3rem 0;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(1, 1fr);
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .logo img {
+                width: 40px;
+                height: 40px;
+            }
+            
+            /* Penyesuaian untuk logo di bagian Pengertian MPK SMADA */
+            .stats-grid .stat-item img.img_deg {
+                width: 150px !important;
+                height: 150px !important;
+            }
+            
+            .stats-grid .stat-item .stat-number.pulse {
+                font-size: 1.8rem;
+                margin-top: 0.5rem;
+            }
+            
+            .stats-grid .stat-item h2 {
+                font-size: 1.3rem;
+                margin: 0.5rem 0;
+            }
+            
+            .stats-grid .stat-item .stat-label {
+                font-size: 0.9rem;
+                padding: 0 0.5rem;
+            }
+            
+            /* Responsive untuk tombol */
+            .read-more-btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .service-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        /* Additional animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Animasi untuk tombol */
+        @keyframes buttonPulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+        
+        .read-more-btn.pulse-effect {
+            animation: buttonPulse 2s infinite;
+        }
+
+        /* Additional adjustments for very small screens */
+        @media (max-width: 480px) {
+            .nav-container {
+                padding: 0.8rem 1rem;
+            }
+            
+            .logo img {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .breadcrumb {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .breadcrumb li {
+                margin: 0.25rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .service-card {
+                padding: 1.5rem;
+            }
+            
+            .service-icon {
+                height: 180px;
+            }
+            
+            .read-more-btn {
+                padding: 0.7rem 1.3rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Placeholder untuk gambar yang tidak tersedia */
+        .img-placeholder {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo-container">
+                <a href="#" class="logo"><img src="Image/Sman2.png" width="50" height="50" alt="Logo SMAN 2"></a>
+                <a href="#" class="logo"><img src="Image/MPK2.png" width="55" height="51" alt="Logo MPK"></a>
+            </div>
+            <nav> 
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="Beranda.html" class="nav-link">Beranda</a></li>
+                    <li><a href="Tentang Kami.html" class="nav-link">Tentang Kami</a></li>
+                    <li><a href="Informasi.html" class="nav-link">Informasi</a></li>
+                    <li><a href="kritik.html" class="nav-link">Kritik</a></li>
+                    <li><a href="admin.html" class="nav-link">Admin</a></li>
+                </ul>
+            </nav>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle Menu">☰</button>
+        </div>
+    </header>
+    
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Tentang Kami</h1>
+        <ul class="breadcrumb">
+            <li><a href="Beranda.html">Beranda</a></li>
+            <li>Tentang Kami</li>
+        </ul>
+    </div>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <img class="img_deg" src="Image/MPK2.png" width="250" height="240" alt="Logo MPK SMADA" style="border-radius: 50%">
+                <div class="stat-number pulse" style="color: #fff; margin-top: 1rem;">MPK SMADA</div>
+                <h2 style="margin: 1rem 0;">PENGERTIAN</h2>
+                <div class="stat-label">Musyawarah Perwakilan Kelas (MPK) merupakan suatu organisasi di SMA Negeri 2 Purwokerto yang bertugas menyalurkan aspirasi dari seluruh warga sekolah dan mengevaluasi setiap program kerja ekstrakurikuler serta organisasi yang ada di SMA Negeri 2 Purwokerto.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="section" id="services">
+        <h2 class="section-title">Program Kerja</h2>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">
+                    <img src="Image/PILKAOS.JPG" alt="PILKAOS" onerror="this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%22300%22 height%3D%22200%22 viewBox%3D%220 0 300 200%22%3E%3Crect fill%3D%22%233498db%22 width%3D%22300%22 height%3D%22200%22%2F%3E%3Ctext fill%3D%22%23fff%22 font-family%3D%22Arial%22 font-size%3D%2220%22 text-anchor%3D%22middle%22 x%3D%22150%22 y%3D%22110%22%3EPILKAOS%3C%2Ftext%3E%3C%2Fsvg%3E'">
+                </div>
+                <h4><a href="PILKAOS.html" style="color: inherit; text-decoration: none;">PILKAOS</a></h4>
+                <p>Pemilihan Ketua OSIS, adalah program kerja yang ada di MPK untuk memilih ketua OSIS di SMA Negeri 2 Purwokerto dengan menggunakan suara seluruh warga sekolah.</p>
+                <a href="PILKAOS.html" class="read-more-btn pulse-effect">
+                    <span>Baca Selengkapnya</span>
+                    <i>→</i>
+                </a>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">
+                    <img src="Image/FORKSA.jpg" alt="FORKSA" onerror="this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%22300%22 height%3D%22200%22 viewBox%3D%220 0 300 200%22%3E%3Crect fill%3D%22%233498db%22 width%3D%22300%22 height%3D%22200%22%2F%3E%3Ctext fill%3D%22%23fff%22 font-family%3D%22Arial%22 font-size%3D%2220%22 text-anchor%3D%22middle%22 x%3D%22150%22 y%3D%22110%22%3EFORKSA%3C%2Ftext%3E%3C%2Fsvg%3E'">
+                </div>
+                <h4><a href="Forksa.html" style="color: inherit; text-decoration: none;">FORKSA</a></h4>
+                <p>Forum Komunikasi Sekolah, adalah program kerja MPK yang menampung aspirasi dari warga sekolah dan menyampaikan aspirasi tersebut ke pihak sekolah</p>
+                <a href="Forksa.html" class="read-more-btn pulse-effect">
+                    <span>Baca Selengkapnya</span>
+                    <i>→</i>
+                </a>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">
+                    <img src="Image/FKB.jpg" alt="FKB" onerror="this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%22300%22 height%3D%22200%22 viewBox%3D%220 0 300 200%22%3E%3Crect fill%3D%22%233498db%22 width%3D%22300%22 height%3D%22200%22%2F%3E%3Ctext fill%3D%22%23fff%22 font-family%3D%22Arial%22 font-size%3D%2220%22 text-anchor%3D%22middle%22 x%3D%22150%22 y%3D%22110%22%3EFKB%3C%2Ftext%3E%3C%2Fsvg%3E'">
+                </div>
+                <h4>FKB</h4>
+                <p>Forum Komunikasi Berkelanjutan, adalah wadah yang bertujuan untuk menampung aspirasi, menyampaikan kendala, dan mengusulkan saran guna meningkatkan efektivitas kegiatan organisasi dan ekstrakurikuler di lingkungan sekolah.</p>
+                <a href="FKB.html" class="read-more-btn pulse-effect">
+                    <span>Baca Selengkapnya</span>
+                    <i>→</i>
+                </a>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">
+                    <img src="Image/MISERA.jpg" alt="MISERA" onerror="this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%22300%22 height%3D%22200%22 viewBox%3D%220 0 300 200%22%3E%3Crect fill%3D%22%233498db%22 width%3D%22300%22 height%3D%22200%22%2F%3E%3Ctext fill%3D%22%23fff%22 font-family%3D%22Arial%22 font-size%3D%2220%22 text-anchor%3D%22middle%22 x%3D%22150%22 y%3D%22110%22%3EMISERA%3C%2Ftext%3E%3C%2Fsvg%3E'">
+                </div>
+                <h4>MISERA</h4>
+                <p>Mid Semester Aspiration, adalah salah satu program kerja dari MPK SMA Negeri 2 Purwokerto. Yang berfokus pada aspirasi warga SMA Negeri 2 Purwokerto yang nantinya akan diteruskan kepada pihak sekolah setiap 1 semester sekali</p>
+                <a href="MISERA.html" class="read-more-btn pulse-effect">
+                    <span>Baca Selengkapnya</span>
+                    <i>→</i>
+                </a>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">
+                    <img src="Image/HAKRAB.jpg" alt="HAKRAB" onerror="this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%22300%22 height%3D%22200%22 viewBox%3D%220 0 300 200%22%3E%3Crect fill%3D%22%233498db%22 width%3D%22300%22 height%3D%22200%22%2F%3E%3Ctext fill%3D%22%23fff%22 font-family%3D%22Arial%22 font-size%3D%2220%22 text-anchor%3D%22middle%22 x%3D%22150%22 y%3D%22110%22%3EHAKRAB%3C%2Ftext%3E%3C%2Fsvg%3E'">
+                </div>
+                <h4>HAKRAB</h4>
+                <p>Hari Keakraban, adalah program kerja yang dirancang khusus bagi para anggota MPK. Program kerja ini berfungsi untuk meningkatkan keakraban serta kemampuan bekerjasama antar anggota MPK.</p>
+                <a href="HAKRAB.html" class="read-more-btn pulse-effect">
+                    <span>Baca Selengkapnya</span>
+                    <i>→</i>
+                </a>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">
+                    <img src="Image/Studi.jpg" alt="Studi Banding" onerror="this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%22300%22 height%3D%22200%22 viewBox%3D%220 0 300 200%22%3E%3Crect fill%3D%22%233498db%22 width%3D%22300%22 height%3D%22200%22%2F%3E%3Ctext fill%3D%22%23fff%22 font-family%3D%22Arial%22 font-size%3D%2220%22 text-anchor%3D%22middle%22 x%3D%22150%22 y%3D%22110%22%3EStudi Banding%3C%2Ftext%3E%3C%2Fsvg%3E'">
+                </div>
+                <h4>Studi Banding</h4>
+                <p>Studi Banding, yaitu kegiatan kunjungan dari MPK sekolah lain ke MPK SMA Negeri 2 Purwokerto untuk saling bertukar informasi seputar MPK di sekolah masing-masing.</p>
+                <a href="Studi_Banding.html" class="read-more-btn pulse-effect">
+                    <span>Baca Selengkapnya</span>
+                    <i>→</i>
+                </a>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">
+                    <img src="Image/GBHK.jpg" alt="GBHK" onerror="this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%22300%22 height%3D%22200%22 viewBox%3D%220 0 300 200%22%3E%3Crect fill%3D%22%233498db%22 width%3D%22300%22 height%3D%22200%22%2F%3E%3Ctext fill%3D%22%23fff%22 font-family%3D%22Arial%22 font-size%3D%2220%22 text-anchor%3D%22middle%22 x%3D%22150%22 y%3D%22110%22%3EGBHK%3C%2Ftext%3E%3C%2Fsvg%3E'">
+                </div>
+                <h4>GBHK</h4>
+                <p>Garis Besar Haluan Kerja, adalah kegiatan belajar dan sosialisasi mengenai keserketariatan serta ketentuan pengumpulan proposal dan LPJ organisasi dan ekstrakulikuler</p>
+                <a href="GBHK.html" class="read-more-btn pulse-effect">
+                    <span>Baca Selengkapnya</span>
+                    <i>→</i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-bottom">
+            <p>&copy; 2025 MPK'19.</p>
+            <button onclick="window.open('https://www.instagram.com/mpksmadapwt/', '_blank')">@mpksmadapwt</button>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
+
+        mobileMenuToggle.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+            // Update aria-expanded attribute
+            const isExpanded = navMenu.classList.contains('active');
+            mobileMenuToggle.setAttribute('aria-expanded', isExpanded);
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                navMenu.classList.remove('active');
+                mobileMenuToggle.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        // Header background on scroll
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Add intersection observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        // Observe service cards for animation
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.style.opacity = 0;
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(card);
+        });
+
+        // Handle image loading errors
+        document.querySelectorAll('img').forEach(img => {
+            img.addEventListener('error', function() {
+                console.log('Gambar gagal dimuat: ' + this.src);
+            });
+        });
+
+        // Add hover effect for service cards
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+    
+</body>
+</html>

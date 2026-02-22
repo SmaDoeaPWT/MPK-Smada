@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - MPK SMADA</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        /* Login Page Styles */
+        .login-page {
+            background: linear-gradient(135deg, #5f010d, #781f19);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo-section {
+            margin-bottom: 2rem;
+        }
+
+        .logo-section img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+
+        .logo-section h1 {
+            color: #5f010d;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-section p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #e74c3c;
+        }
+
+        .login-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .login-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c0392b;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #f5b7b1;
+            display: none;
+        }
+
+        .back-link {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #e74c3c;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-page {
+            display: none;
+        }
+
+        .admin-header {
+            background: rgb(110, 1, 1);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .admin-logo h1 {
+            font-size: 1.5rem;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Navbar Styles */
+        .admin-navbar {
+            background: #8B0000;
+            padding: 0.75rem 2rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .navbar-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .navbar-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+
+        /* Hamburger Menu */
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .hamburger-menu span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: white;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: #8B0000;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            flex-direction: column;
+            padding: 1rem 0;
+        }
+
+        .mobile-nav.active {
+            display: flex;
+        }
+
+        .mobile-nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+
+        .mobile-logout {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card.total {
+            border-top: 4px solid #3498db;
+        }
+
+        .stat-card.menunggu {
+            border-top: 4px solid #3498db;
+        }
+
+        .stat-card.disetujui {
+            border-top: 4px solid #27ae60;
+        }
+
+        .stat-card.ditolak {
+            border-top: 4px solid #e74c3c;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .search-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: end;
+        }
+
+        .search-group input {
+            padding: 0.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            min-width: 250px;
+        }
+
+        .aspirations-table {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-menunggu {
+            background: #d6eaf8;
+            color: #2874a6;
+            border: 1px solid #85c1e9;
+        }
+
+        .status-disetujui {
+            background: #d5f5e3;
+            color: #27ae60;
+            border: 1px solid #82e0aa;
+        }
+
+        .status-ditolak {
+            background: #fadbd8;
+            color: #c0392b;
+            border: 1px solid #f5b7b1;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .aspiration-detail {
+            margin-bottom: 1rem;
+        }
+
+        .aspiration-detail label {
+            font-weight: 600;
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .aspiration-detail p {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .aspiration-text {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .login-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #e74c3c;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .realtime-indicator {
+            background: #27ae60;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        /* ADDITIONAL STYLES FOR ROLE HANDLING */
+        .role-indicator {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        
+        .role-siswa {
+            background: #d6eaf8;
+            color: #2874a6;
+            border: 1px solid #85c1e9;
+        }
+        
+        .role-organisasi {
+            background: #fdebd0;
+            color: #d68910;
+            border: 1px solid #f8c471;
+        }
+        
+        .detail-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+        }
+        
+        .organisasi-section {
+            border-left-color: #d68910;
+            background: #fef9e7;
+        }
+        
+        .detail-section h4 {
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Filter untuk role */
+        .filter-group.role-filter {
+            min-width: 150px;
+        }
+        
+        .stat-card.organisasi {
+            border-top: 4px solid #d68910;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 2rem 1.5rem;
+            }
+            
+            .logo-section h1 {
+                font-size: 1.5rem;
+            }
+
+            .admin-nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .admin-actions {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .admin-actions .btn-danger {
+                display: none;
+            }
+
+            .navbar-container {
+                display: none;
+            }
+
+            .hamburger-menu {
+                display: flex;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-group {
+                width: 100%;
+            }
+
+            .search-group input {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .table-container {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .admin-container {
+                padding: 1rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+            
+            .role-indicator {
+                display: block;
+                margin: 0.25rem 0;
+                width: fit-content;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-logout {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1.5rem 1rem;
+            }
+            
+            .admin-container {
+                padding: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .navbar-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .navbar-link {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .filters {
+                padding: 1rem;
+            }
+
+            .table-header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="login-page" id="loginPage">
+        <div class="login-container">
+            <div class="logo-section">
+                <img src="Image/MPK2.png" alt="Logo MPK SMADA" onerror="this.style.display='none'">
+                <h1>Admin MPK SMADA</h1>
+                <p>Panel Administrasi FORKSA</p>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Nama Admin</label>
+                    <input type="text" id="username" name="username" required placeholder="Masukkan nama admin">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Masukkan password">
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <span id="loginText">Masuk ke Dashboard</span>
+                    <div class="login-spinner" id="loginSpinner"></div>
+                </button>
+            </form>
+
+            <a href="Beranda.html" class="back-link">← Kembali ke Beranda</a>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div class="dashboard-page" id="dashboardPage">
+        <!-- Header -->
+        <header class="admin-header">
+            <nav class="admin-nav">
+                <div class="admin-logo">
+                    <img src="Image/MPK2.png" alt="Logo MPK" onerror="this.style.display='none'">
+                    <h1>Admin Dashboard - FORKSA</h1>
+                </div>
+                <div class="admin-actions">
+                    <span id="adminWelcome">Halo, Admin!</span>
+                    <div class="realtime-indicator">
+                        <span>●</span> Real-time
+                    </div>
+                    <!-- Logout button untuk desktop -->
+                    <button class="btn btn-danger" id="desktopLogout" onclick="logout()">Logout</button>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Navbar -->
+        <nav class="admin-navbar">
+            <div class="navbar-container">
+                <a href="admin.html" class="navbar-link active">
+                    Forksa
+                </a>
+                <a href="hasil-voting.html" class="navbar-link">
+                    Reorganisasi
+                </a>
+                <a href="kritik-MPK.html" class="navbar-link">
+                    Kritik
+                </a>
+            </div>
+            
+            <!-- Hamburger Menu -->
+            <div class="hamburger-menu" id="hamburgerMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <!-- Mobile Navigation -->
+            <div class="mobile-nav" id="mobileNav">
+                <a href="admin.html" class="mobile-nav-link active">
+                    Forksa
+                </a>
+                <a href="hasil-voting.html" class="mobile-nav-link">
+                    Reorganisasi
+                </a>
+                <a href="kritik-MPK.html" class="mobile-nav-link">
+                    Kritik
+                </a>
+                <!-- Logout button untuk mobile -->
+                <div class="mobile-logout">
+                    <a href="#" class="mobile-nav-link" onclick="logout()">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="admin-container">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <div class="stat-number" id="totalAspirations">0</div>
+                    <div class="stat-label">Total Aspirasi</div>
+                </div>
+                <div class="stat-card menunggu">
+                    <div class="stat-number" id="menungguAspirations">0</div>
+                    <div class="stat-label">Menunggu</div>
+                </div>
+                <div class="stat-card disetujui">
+                    <div class="stat-number" id="disetujuiAspirations">0</div>
+                    <div class="stat-label">Disetujui</div>
+                </div>
+                <div class="stat-card ditolak">
+                    <div class="stat-number" id="ditolakAspirations">0</div>
+                    <div class="stat-label">Ditolak</div>
+                </div>
+                <!-- NEW: Stat card for organizations -->
+                <div class="stat-card organisasi">
+                    <div class="stat-number" id="organisasiAspirations">0</div>
+                    <div class="stat-label">Aspirasi Organisasi</div>
+                </div>
+            </div>
+
+            <!-- Filters and Actions -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="statusFilter">Status</label>
+                    <select id="statusFilter">
+                        <option value="all">Semua Status</option>
+                        <option value="menunggu">Menunggu</option>
+                        <option value="disetujui">Disetujui</option>
+                        <option value="ditolak">Ditolak</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="categoryFilter">Kategori</label>
+                    <select id="categoryFilter">
+                        <option value="all">Semua Kategori</option>
+                        <option value="akademik">Akademik & Pembelajaran</option>
+                        <option value="fasilitas">Fasilitas Sekolah</option>
+                        <option value="ekstrakurikuler">Ekstrakurikuler</option>
+                        <option value="organisasi">Organisasi Sekolah</option>
+                        <option value="lingkungan">Lingkungan Sekolah</option>
+                        <option value="kesehatan">Kesehatan & Kesejahteraan</option>
+                        <option value="lainnya">Lainnya</option>
+                    </select>
+                </div>
+                <!-- NEW: Role Filter -->
+                <div class="filter-group role-filter">
+                    <label for="roleFilter">Peran</label>
+                    <select id="roleFilter">
+                        <option value="all">Semua Peran</option>
+                        <option value="siswa-guru">Siswa/Guru</option>
+                        <option value="organisasi">Organisasi</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="dateFilter">Tanggal</label>
+                    <input type="date" id="dateFilter">
+                </div>
+                <div class="search-group">
+                    <div class="filter-group">
+                        <label for="searchInput">Pencarian</label>
+                        <input type="text" id="searchInput" placeholder="Cari nama, organisasi, atau aspirasi...">
+                    </div>
+                    <button class="btn btn-secondary" onclick="clearFilters()">Reset</button>
+                </div>
+                <button class="btn btn-primary" onclick="applyFilters()">Terapkan Filter</button>
+                <button class="btn btn-success" onclick="exportToExcel()">
+                    📊 Export Excel
+                </button>
+            </div>
+
+            <!-- Aspirations Table -->
+            <div class="aspirations-table">
+                <div class="table-header">
+                    <h3>Daftar Aspirasi <small id="roleSummary" style="font-weight: normal; color: #666;"></small></h3>
+                    <span id="tableCount">Menampilkan 0 aspirasi</span>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Pengirim</th>
+                                <th>Peran</th>
+                                <th>Kategori</th>
+                                <th>Aspirasi</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="aspirationsTableBody">
+                            <tr>
+                                <td colspan="7" class="loading">
+                                    <div class="spinner"></div>
+                                    <p>Memuat data aspirasi...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-success" onclick="markAllAsDisetujui()">
+                    Tandai Semua Disetujui
+                </button>
+                <button class="btn btn-primary" onclick="refreshData()">
+                    🔄 Refresh Data
+                </button>
+                <button class="btn btn-danger" onclick="deleteAllProcessed()">
+                    Hapus yang Sudah Diproses
+                </button>
+            </div>
+        </div>
+
+        <!-- Detail Modal -->
+        <div class="modal" id="detailModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Detail Aspirasi</h3>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <div id="modalContent">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Configuration -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVFjyWukHa8joBjlS9eKRP3Grq-fVFCkk",
+            authDomain: "mpk-smada.firebaseapp.com",
+            projectId: "mpk-smada",
+            storageBucket: "mpk-smada.firebasestorage.app",
+            messagingSenderId: "678684148175",
+            appId: "1:678684148175:web:9af24d801ddb24011a52ba",
+            measurementId: "G-GTPYYMJQGV"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+
+    <script>
+        // Global variables
+        let allAspirations = [];
+        let currentFilters = {
+            status: 'all',
+            category: 'all',
+            role: 'all',
+            date: '',
+            search: ''
+        };
+        let unsubscribeListener = null;
+
+        // Admin credentials
+        const ADMIN_USERNAME = 'sembilas';
+        const ADMIN_PASSWORD = 'cihuyyyy';
+
+        // Helper function untuk mendapatkan label kategori
+        function getCategoryLabel(categoryValue) {
+            const categoryLabels = {
+                'akademik': 'Akademik & Pembelajaran',
+                'fasilitas': 'Fasilitas Sekolah',
+                'ekstrakurikuler': 'Ekstrakurikuler',
+                'organisasi': 'Organisasi Sekolah',
+                'lingkungan': 'Lingkungan Sekolah',
+                'kesehatan': 'Kesehatan & Kesejahteraan',
+                'lainnya': 'Lainnya'
+            };
+            
+            // Jika kategori tidak ditemukan, kembalikan nilai asli dengan kapitalisasi pertama
+            if (!categoryValue) return '-';
+            return categoryLabels[categoryValue] || 
+                   categoryValue.charAt(0).toUpperCase() + categoryValue.slice(1);
+        }
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+            setupEventListeners();
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Filter event listeners
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('statusFilter').addEventListener('change', applyFilters);
+            document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+            document.getElementById('roleFilter').addEventListener('change', applyFilters);
+            document.getElementById('dateFilter').addEventListener('change', applyFilters);
+            
+            // Hamburger menu
+            document.getElementById('hamburgerMenu').addEventListener('click', toggleMobileMenu);
+        }
+
+        // Check authentication status
+        function checkAuthentication() {
+            const isAuthenticated = localStorage.getItem('adminAuthenticated') === 'true';
+            const loginTime = localStorage.getItem('adminLoginTime');
+            const currentTime = new Date().getTime();
+            
+            const sessionDuration = 8 * 60 * 60 * 1000;
+            const isSessionValid = loginTime && (currentTime - parseInt(loginTime)) < sessionDuration;
+            
+            if (isAuthenticated && isSessionValid) {
+                showDashboard();
+            } else {
+                if (!isSessionValid) {
+                    localStorage.removeItem('adminAuthenticated');
+                    localStorage.removeItem('adminName');
+                    localStorage.removeItem('adminLoginTime');
+                }
+                showLogin();
+            }
+        }
+
+        // Show login page
+        function showLogin() {
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('dashboardPage').style.display = 'none';
+            
+            if (unsubscribeListener) {
+                unsubscribeListener();
+                unsubscribeListener = null;
+            }
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('dashboardPage').style.display = 'block';
+            document.getElementById('adminWelcome').textContent = 
+                `Halo, ${localStorage.getItem('adminName') || 'Admin'}!`;
+            setupRealTimeListener();
+        }
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loginText = document.getElementById('loginText');
+            const loginSpinner = document.getElementById('loginSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            loginBtn.disabled = true;
+            loginText.style.display = 'none';
+            loginSpinner.style.display = 'block';
+            errorMessage.style.display = 'none';
+            
+            try {
+                if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                    localStorage.setItem('adminAuthenticated', 'true');
+                    localStorage.setItem('adminName', username);
+                    localStorage.setItem('adminLoginTime', new Date().getTime().toString());
+                    showDashboard();
+                } else {
+                    throw new Error('Nama atau password salah');
+                }
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.style.display = 'block';
+            } finally {
+                loginBtn.disabled = false;
+                loginText.style.display = 'block';
+                loginSpinner.style.display = 'none';
+            }
+        });
+
+        // Hamburger Menu Function
+        function toggleMobileMenu() {
+            const mobileNav = document.getElementById('mobileNav');
+            mobileNav.classList.toggle('active');
+            
+            const hamburger = document.getElementById('hamburgerMenu');
+            hamburger.classList.toggle('active');
+        }
+
+        // Setup real-time listener
+        function setupRealTimeListener() {
+            try {
+                const tbody = document.getElementById('aspirationsTableBody');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="loading">
+                            <div class="spinner"></div>
+                            <p>Menyiapkan koneksi real-time...</p>
+                        </td>
+                    </tr>
+                `;
+
+                if (unsubscribeListener) {
+                    unsubscribeListener();
+                }
+
+                unsubscribeListener = db.collection('aspirations')
+                    .orderBy('timestamp', 'desc')
+                    .onSnapshot(
+                        (snapshot) => {
+                            console.log('Real-time update diterima:', snapshot.docChanges().length, 'perubahan');
+                            
+                            snapshot.docChanges().forEach((change) => {
+                                const doc = change.doc;
+                                const data = doc.data();
+                                
+                                // PROCESS DATA WITH ROLE HANDLING
+                                const aspirationData = processAspirationData(doc.id, data);
+                                
+                                if (change.type === 'added') {
+                                    const existingIndex = allAspirations.findIndex(a => a.id === doc.id);
+                                    if (existingIndex === -1) {
+                                        allAspirations.push(aspirationData);
+                                    }
+                                }
+                                if (change.type === 'modified') {
+                                    const index = allAspirations.findIndex(a => a.id === doc.id);
+                                    if (index !== -1) {
+                                        allAspirations[index] = aspirationData;
+                                    }
+                                }
+                                if (change.type === 'removed') {
+                                    allAspirations = allAspirations.filter(a => a.id !== doc.id);
+                                }
+                            });
+                            
+                            updateStats();
+                            applyFilters();
+                        },
+                        (error) => {
+                            console.error('Error real-time listener:', error);
+                            document.getElementById('aspirationsTableBody').innerHTML = `
+                                <tr>
+                                    <td colspan="7" class="empty-state">
+                                        <div>❌</div>
+                                        <p>Gagal memuat data real-time.</p>
+                                        <button class="btn btn-primary" onclick="setupRealTimeListener()">Coba Lagi</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                    );
+                
+            } catch (error) {
+                console.error('Error setting up real-time listener:', error);
+            }
+        }
+
+        // PROCESS DATA WITH PROPER ROLE HANDLING
+        function processAspirationData(id, data) {
+            // Default values
+            let status = data.status || 'menunggu';
+            if (!['menunggu', 'disetujui', 'ditolak'].includes(status)) {
+                status = 'menunggu';
+            }
+            
+            const role = data.role || 'siswa-guru';
+            const timestamp = data.timestamp || new Date();
+            
+            // Base data structure
+            const aspirationData = {
+                id: id,
+                role: role,
+                status: status,
+                tanggal: timestamp.toDate ? timestamp.toDate() : new Date(),
+                timestamp: timestamp
+            };
+            
+            // Handle berdasarkan role
+            if (role === 'organisasi') {
+                // Data organisasi
+                aspirationData.nama_organisasi = data.nama_organisasi || '';
+                aspirationData.kategori_organisasi = data.kategori_organisasi || data.kategori || 'lainnya';
+                aspirationData.aspirasi_organisasi = data.aspirasi_organisasi || '';
+                aspirationData.saran_organisasi = data.saran_organisasi || '';
+                
+                // Untuk kompatibilitas dengan filter existing
+                aspirationData.nama = aspirationData.nama_organisasi;
+                aspirationData.kategori = aspirationData.kategori_organisasi;
+                aspirationData.aspirasi = aspirationData.aspirasi_organisasi;
+                aspirationData.saran = aspirationData.saran_organisasi;
+                aspirationData.kelas = 'Organisasi';
+            } else {
+                // Data individu (siswa/guru)
+                aspirationData.nama = data.nama || '';
+                aspirationData.kelas = data.kelas || '';
+                aspirationData.kategori = data.kategori || 'lainnya';
+                aspirationData.aspirasi = data.aspirasi || '';
+                aspirationData.saran = data.saran || '';
+            }
+            
+            return aspirationData;
+        }
+
+        // Update statistics dengan role counting
+        function updateStats() {
+            const total = allAspirations.length;
+            const menunggu = allAspirations.filter(a => a.status === 'menunggu').length;
+            const disetujui = allAspirations.filter(a => a.status === 'disetujui').length;
+            const ditolak = allAspirations.filter(a => a.status === 'ditolak').length;
+            const organisasi = allAspirations.filter(a => a.role === 'organisasi').length;
+            
+            document.getElementById('totalAspirations').textContent = total;
+            document.getElementById('menungguAspirations').textContent = menunggu;
+            document.getElementById('disetujuiAspirations').textContent = disetujui;
+            document.getElementById('ditolakAspirations').textContent = ditolak;
+            document.getElementById('organisasiAspirations').textContent = organisasi;
+        }
+
+        // Apply filters dengan role filtering
+        function applyFilters() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const roleFilter = document.getElementById('roleFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const searchFilter = document.getElementById('searchInput').value.toLowerCase();
+            
+            currentFilters = { 
+                status: statusFilter, 
+                category: categoryFilter,
+                role: roleFilter,
+                date: dateFilter,
+                search: searchFilter
+            };
+            
+            let filtered = allAspirations;
+            
+            // Filter by status
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(a => a.status === statusFilter);
+            }
+            
+            // Filter by category
+            if (categoryFilter !== 'all') {
+                filtered = filtered.filter(a => {
+                    const kategori = a.role === 'organisasi' ? a.kategori_organisasi : a.kategori;
+                    return kategori === categoryFilter;
+                });
+            }
+            
+            // Filter by role
+            if (roleFilter !== 'all') {
+                filtered = filtered.filter(a => a.role === roleFilter);
+            }
+            
+            // Filter by date
+            if (dateFilter) {
+                filtered = filtered.filter(a => {
+                    const aspirationDate = new Date(a.tanggal).toISOString().split('T')[0];
+                    return aspirationDate === dateFilter;
+                });
+            }
+            
+            // Filter by search
+            if (searchFilter) {
+                filtered = filtered.filter(a => {
+                    const searchFields = [
+                        a.nama,
+                        a.kelas,
+                        a.aspirasi,
+                        a.saran || '',
+                        a.role === 'organisasi' ? a.nama_organisasi : '',
+                        a.role === 'organisasi' ? a.aspirasi_organisasi : '',
+                        a.role === 'organisasi' ? a.saran_organisasi : ''
+                    ];
+                    
+                    return searchFields.some(field => 
+                        field && field.toLowerCase().includes(searchFilter)
+                    );
+                });
+            }
+            
+            displayAspirations(filtered);
+        }
+
+        // Clear all filters
+        function clearFilters() {
+            document.getElementById('statusFilter').value = 'all';
+            document.getElementById('categoryFilter').value = 'all';
+            document.getElementById('roleFilter').value = 'all';
+            document.getElementById('dateFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            applyFilters();
+        }
+
+        // Display aspirations dengan role information
+        function displayAspirations(aspirations) {
+            const tbody = document.getElementById('aspirationsTableBody');
+            const countElement = document.getElementById('tableCount');
+            const roleSummary = document.getElementById('roleSummary');
+            
+            countElement.textContent = `Menampilkan ${aspirations.length} dari ${allAspirations.length} aspirasi`;
+            
+            // Update role summary
+            const siswaCount = aspirations.filter(a => a.role === 'siswa-guru').length;
+            const orgCount = aspirations.filter(a => a.role === 'organisasi').length;
+            roleSummary.innerHTML = `(Individu: ${siswaCount}, Organisasi: ${orgCount})`;
+            
+            if (aspirations.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <div>📝</div>
+                            <p>Tidak ada data aspirasi yang sesuai dengan filter.</p>
+                            <button class="btn btn-primary" onclick="clearFilters()">Tampilkan Semua</button>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = aspirations.map(aspiration => {
+                const date = new Date(aspiration.tanggal).toLocaleDateString('id-ID');
+                const statusClass = `status-${aspiration.status}`;
+                const roleClass = `role-${aspiration.role === 'organisasi' ? 'organisasi' : 'siswa'}`;
+                
+                const statusText = {
+                    'menunggu': 'Menunggu',
+                    'disetujui': 'Disetujui', 
+                    'ditolak': 'Ditolak'
+                }[aspiration.status];
+                
+                // Tampilkan data sesuai role
+                let pengirim, kategori, aspirasiText;
+                
+                if (aspiration.role === 'organisasi') {
+                    pengirim = aspiration.nama_organisasi || 'Tidak ada nama organisasi';
+                    kategori = getCategoryLabel(aspiration.kategori_organisasi);
+                    aspirasiText = aspiration.aspirasi_organisasi || aspiration.aspirasi || 'Tidak ada aspirasi';
+                } else {
+                    pengirim = aspiration.nama || 'Tidak ada nama';
+                    kategori = getCategoryLabel(aspiration.kategori);
+                    aspirasiText = aspiration.aspirasi || 'Tidak ada aspirasi';
+                }
+                
+                // Shorten text untuk tabel
+                const shortAspirasi = aspirasiText.length > 100 
+                    ? aspirasiText.substring(0, 100) + '...' 
+                    : aspirasiText;
+                
+                // Role text untuk display
+                const roleText = aspiration.role === 'organisasi' ? 'Organisasi' : 'Individu';
+                
+                return `
+                    <tr>
+                        <td>${date}</td>
+                        <td>
+                            <strong>${pengirim}</strong>
+                            <br><small>${aspiration.role === 'organisasi' ? 'Organisasi' : (aspiration.kelas || 'Tidak ada kelas')}</small>
+                        </td>
+                        <td>
+                            <span class="role-indicator ${roleClass}">${roleText}</span>
+                        </td>
+                        <td>${kategori}</td>
+                        <td>${shortAspirasi}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-primary btn-sm" onclick="viewDetail('${aspiration.id}')">Detail</button>
+                            <button class="btn btn-success btn-sm" onclick="updateStatus('${aspiration.id}', 'disetujui')">Setujui</button>
+                            <button class="btn btn-danger btn-sm" onclick="updateStatus('${aspiration.id}', 'ditolak')">Tolak</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // View aspiration detail dengan role handling
+        function viewDetail(aspirationId) {
+            const aspiration = allAspirations.find(a => a.id === aspirationId);
+            if (!aspiration) {
+                alert('Data tidak ditemukan');
+                return;
+            }
+            
+            const date = new Date(aspiration.tanggal).toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const statusText = {
+                'menunggu': 'Menunggu',
+                'disetujui': 'Disetujui',
+                'ditolak': 'Ditolak'
+            }[aspiration.status];
+            
+            let detailHTML = `
+                <div class="aspiration-detail">
+                    <label>Tanggal Pengajuan</label>
+                    <p>${date}</p>
+                </div>
+                <div class="aspiration-detail">
+                    <label>Peran Pengirim</label>
+                    <p><span class="role-indicator role-${aspiration.role === 'organisasi' ? 'organisasi' : 'siswa'}">
+                        ${aspiration.role === 'organisasi' ? 'Organisasi' : 'Individu (Siswa/Guru)'}
+                    </span></p>
+                </div>
+            `;
+            
+            if (aspiration.role === 'organisasi') {
+                // Tampilkan data organisasi
+                detailHTML += `
+                    <div class="detail-section organisasi-section">
+                        <h4>📋 Data Organisasi</h4>
+                        <div class="aspiration-detail">
+                            <label>Nama Organisasi</label>
+                            <p><strong>${aspiration.nama_organisasi || '-'}</strong></p>
+                        </div>
+                        <div class="aspiration-detail">
+                            <label>Kategori Aspirasi</label>
+                            <p>${getCategoryLabel(aspiration.kategori_organisasi)}</p>
+                        </div>
+                    </div>
+                    <div class="detail-section organisasi-section">
+                        <h4>💬 Aspirasi Organisasi</h4>
+                        <div class="aspiration-text">
+                            <p>${aspiration.aspirasi_organisasi || aspiration.aspirasi || '-'}</p>
+                        </div>
+                    </div>
+                    ${aspiration.saran_organisasi ? `
+                    <div class="detail-section organisasi-section">
+                        <h4>💡 Saran Solusi Organisasi</h4>
+                        <div class="aspiration-text">
+                            <p>${aspiration.saran_organisasi}</p>
+                        </div>
+                    </div>
+                    ` : ''}
+                `;
+            } else {
+                // Tampilkan data individu
+                detailHTML += `
+                    <div class="detail-section">
+                        <h4>👤 Data Individu</h4>
+                        <div class="aspiration-detail">
+                            <label>Nama</label>
+                            <p><strong>${aspiration.nama || '-'}</strong></p>
+                        </div>
+                        <div class="aspiration-detail">
+                            <label>Kelas/Jabatan</label>
+                            <p>${aspiration.kelas || '-'}</p>
+                        </div>
+                        <div class="aspiration-detail">
+                            <label>Kategori</label>
+                            <p>${getCategoryLabel(aspiration.kategori)}</p>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <h4>💬 Aspirasi</h4>
+                        <div class="aspiration-text">
+                            <p>${aspiration.aspirasi || '-'}</p>
+                        </div>
+                    </div>
+                    ${aspiration.saran ? `
+                    <div class="detail-section">
+                        <h4>💡 Saran Solusi</h4>
+                        <div class="aspiration-text">
+                            <p>${aspiration.saran}</p>
+                        </div>
+                    </div>
+                    ` : ''}
+                `;
+            }
+            
+            detailHTML += `
+                <div class="aspiration-detail">
+                    <label>Status</label>
+                    <p><span class="status-badge status-${aspiration.status}">${statusText}</span></p>
+                </div>
+                <div class="action-buttons" style="margin-top: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn btn-success" onclick="updateStatus('${aspiration.id}', 'disetujui')">
+                        ✅ Tandai Disetujui
+                    </button>
+                    <button class="btn btn-danger" onclick="updateStatus('${aspiration.id}', 'ditolak')">
+                        ❌ Tandai Ditolak
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteAspiration('${aspiration.id}')">
+                        🗑️ Hapus Aspirasi
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('modalContent').innerHTML = detailHTML;
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // Update aspiration status
+        async function updateStatus(aspirationId, newStatus) {
+            try {
+                await db.collection('aspirations').doc(aspirationId).update({
+                    status: newStatus
+                });
+                
+                const statusMessages = {
+                    'menunggu': 'menunggu',
+                    'disetujui': 'disetujui', 
+                    'ditolak': 'ditolak'
+                };
+                
+                alert(`✅ Status aspirasi berhasil diubah menjadi ${statusMessages[newStatus]}`);
+                
+            } catch (error) {
+                console.error('Error updating status:', error);
+                alert('❌ Gagal mengubah status aspirasi');
+            }
+        }
+
+        // Delete aspiration
+        async function deleteAspiration(aspirationId) {
+            if (!confirm('⚠️ Apakah Anda yakin ingin menghapus aspirasi ini? Tindakan ini tidak dapat dibatalkan.')) {
+                return;
+            }
+            
+            try {
+                await db.collection('aspirations').doc(aspirationId).delete();
+                alert('✅ Aspirasi berhasil dihapus');
+            } catch (error) {
+                console.error('Error deleting aspiration:', error);
+                alert('❌ Gagal menghapus aspirasi');
+            }
+        }
+
+        // Mark all as disetujui
+        async function markAllAsDisetujui() {
+            if (!confirm('⚠️ Tandai SEMUA aspirasi sebagai disetujui?')) {
+                return;
+            }
+            
+            try {
+                const batch = db.batch();
+                const aspirationsToUpdate = allAspirations.filter(a => a.status !== 'disetujui');
+                
+                aspirationsToUpdate.forEach(aspiration => {
+                    const aspirationRef = db.collection('aspirations').doc(aspiration.id);
+                    batch.update(aspirationRef, { status: 'disetujui' });
+                });
+                
+                await batch.commit();
+                alert(`✅ ${aspirationsToUpdate.length} aspirasi berhasil ditandai disetujui`);
+                
+            } catch (error) {
+                console.error('Error marking all as disetujui:', error);
+                alert('❌ Gagal menandai aspirasi sebagai disetujui');
+            }
+        }
+
+        // Delete all processed aspirations
+        async function deleteAllProcessed() {
+            const processedCount = allAspirations.filter(a => a.status !== 'menunggu').length;
+            
+            if (processedCount === 0) {
+                alert('ℹ️ Tidak ada aspirasi yang sudah diproses untuk dihapus');
+                return;
+            }
+            
+            if (!confirm(`⚠️ Hapus SEMUA ${processedCount} aspirasi yang sudah diproses (disetujui/ditolak)? Tindakan ini tidak dapat dibatalkan.`)) {
+                return;
+            }
+            
+            try {
+                const batch = db.batch();
+                const processedAspirations = allAspirations.filter(a => a.status !== 'menunggu');
+                
+                processedAspirations.forEach(aspiration => {
+                    const aspirationRef = db.collection('aspirations').doc(aspiration.id);
+                    batch.delete(aspirationRef);
+                });
+                
+                await batch.commit();
+                alert(`✅ ${processedCount} aspirasi yang sudah diproses berhasil dihapus`);
+                
+            } catch (error) {
+                console.error('Error deleting processed aspirations:', error);
+                alert('❌ Gagal menghapus aspirasi yang sudah diproses');
+            }
+        }
+
+        // Refresh data
+        function refreshData() {
+            setupRealTimeListener();
+            alert('🔄 Koneksi real-time diperbarui');
+        }
+
+        // Export to Excel dengan data lengkap untuk kedua role
+        function exportToExcel() {
+            if (allAspirations.length === 0) {
+                alert('ℹ️ Tidak ada data untuk di-export');
+                return;
+            }
+            
+            const data = allAspirations.map(aspiration => {
+                const baseData = {
+                    'Tanggal': new Date(aspiration.tanggal).toLocaleDateString('id-ID'),
+                    'Peran': aspiration.role === 'organisasi' ? 'Organisasi' : 'Individu',
+                    'Status': {
+                        'menunggu': 'Menunggu',
+                        'disetujui': 'Disetujui',
+                        'ditolak': 'Ditolak'
+                    }[aspiration.status]
+                };
+                
+                if (aspiration.role === 'organisasi') {
+                    // Data organisasi
+                    return {
+                        ...baseData,
+                        'Nama Organisasi': aspiration.nama_organisasi || '-',
+                        'Kategori': getCategoryLabel(aspiration.kategori_organisasi),
+                        'Aspirasi': aspiration.aspirasi_organisasi || aspiration.aspirasi || '-',
+                        'Saran Solusi': aspiration.saran_organisasi || '-',
+                        'Kelas/Jabatan': 'Organisasi'
+                    };
+                } else {
+                    // Data individu
+                    return {
+                        ...baseData,
+                        'Nama': aspiration.nama || '-',
+                        'Kelas/Jabatan': aspiration.kelas || '-',
+                        'Kategori': getCategoryLabel(aspiration.kategori),
+                        'Aspirasi': aspiration.aspirasi || '-',
+                        'Saran Solusi': aspiration.saran || '-'
+                    };
+                }
+            });
+            
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Aspirasi FORKSA');
+            
+            // Auto-size columns
+            const colWidths = [
+                { wch: 12 },  // Tanggal
+                { wch: 10 },  // Peran
+                { wch: 10 },  // Status
+                { wch: 20 },  // Nama/Nama Organisasi
+                { wch: 25 },  // Kategori
+                { wch: 50 },  // Aspirasi
+                { wch: 30 },  // Saran Solusi
+                { wch: 15 }   // Kelas/Jabatan
+            ];
+            worksheet['!cols'] = colWidths;
+            
+            XLSX.writeFile(workbook, `aspirasi-forksa-${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        // Logout
+        function logout() {
+            if (unsubscribeListener) {
+                unsubscribeListener();
+                unsubscribeListener = null;
+            }
+            
+            localStorage.removeItem('adminAuthenticated');
+            localStorage.removeItem('adminName');
+            localStorage.removeItem('adminLoginTime');
+            
+            showLogin();
+            document.getElementById('loginForm').reset();
+        }
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

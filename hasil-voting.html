@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Voting - MPK SMADA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-analytics-compat.js"></script>
+    
+    <!-- SheetJS untuk export Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a1a1a;
+            --secondary: #2d2d2d;
+            --accent: #4a4a4a;
+            --light: #f5f5f5;
+            --dark: #0a0a0a;
+            --text: #333333;
+            --text-light: #666666;
+            --border: #e0e0e0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --gold: linear-gradient(135deg, #FFD700, #FFEC8B);
+            --silver: linear-gradient(135deg, #C0C0C0, #E8E8E8);
+            --bronze: linear-gradient(135deg, #CD7F32, #E6A861);
+            --fourth: linear-gradient(135deg, #964B00, #B8860B);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
+            min-height: 100vh;
+        }
+        
+        .admin-header {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .admin-logo h1 {
+            font-size: 1.5rem;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Navbar Styles - WARNA HITAM */
+        .admin-navbar {
+            background: var(--secondary);
+            padding: 0.75rem 2rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .navbar-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .navbar-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+
+        /* Hamburger Menu */
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .hamburger-menu span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: white;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: var(--secondary);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            flex-direction: column;
+            padding: 1rem 0;
+        }
+
+        .mobile-nav.active {
+            display: flex;
+        }
+
+        .mobile-nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+
+        .mobile-logout {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* REAL-TIME INDICATOR DENGAN STATUS VOTING */
+        .realtime-indicator {
+            background: #27ae60;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        .realtime-indicator.paused {
+            background: #e74c3c;
+            animation: pulse-paused 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { 
+                opacity: 1;
+                box-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
+            }
+            50% { 
+                opacity: 0.8;
+                box-shadow: 0 0 15px rgba(39, 174, 96, 0.8);
+            }
+            100% { 
+                opacity: 1;
+                box-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
+            }
+        }
+
+        @keyframes pulse-paused {
+            0% { 
+                opacity: 1;
+                box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+            }
+            50% { 
+                opacity: 0.8;
+                box-shadow: 0 0 15px rgba(231, 76, 60, 0.8);
+            }
+            100% { 
+                opacity: 1;
+                box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+            }
+        }
+
+        /* ==============================
+           CONTENT STYLES 
+           ============================== */
+
+        /* Page Header */
+        .page-header {
+            padding: 140px 0 80px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--light);
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.05" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .page-header h1 {
+            font-size: 3.2rem;
+            margin-bottom: 1rem;
+            position: relative;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .page-header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            font-weight: 300;
+        }
+
+        /* Sections */
+        .section {
+            padding: 5rem 0;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--primary);
+            position: relative;
+            font-weight: 700;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        /* Podium Section */
+        .podium-section {
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .podium-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            align-items: end;
+        }
+
+        .podium-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .podium-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .podium-place {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            color: white;
+            text-align: center;
+            z-index: 2;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 180px;
+        }
+
+        .podium-place.first {
+            background: var(--gold);
+        }
+
+        .podium-place.second {
+            background: var(--silver);
+        }
+
+        .podium-place.third {
+            background: var(--bronze);
+        }
+
+        .podium-place.fourth {
+            background: var(--fourth);
+        }
+
+        .podium-stand {
+            width: 100%;
+            height: 300px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 1.5rem 1rem;
+            color: white;
+            font-weight: bold;
+            position: relative;
+            transition: var(--transition);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .podium-stand::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255,255,255,0.1), transparent);
+            z-index: 1;
+        }
+
+        .podium-stand.first {
+            background: var(--gold);
+            animation: glow-gold 2s infinite alternate;
+        }
+
+        .podium-stand.second {
+            background: var(--silver);
+            animation: glow-silver 2s infinite alternate;
+        }
+
+        .podium-stand.third {
+            background: var(--bronze);
+            animation: glow-bronze 2s infinite alternate;
+        }
+
+        .podium-stand.fourth {
+            background: var(--fourth);
+        }
+
+        @keyframes glow-gold {
+            0% { box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4); }
+            100% { box-shadow: 0 15px 40px rgba(255, 215, 0, 0.7); }
+        }
+
+        @keyframes glow-silver {
+            0% { box-shadow: 0 10px 30px rgba(192, 192, 192, 0.4); }
+            100% { box-shadow: 0 15px 40px rgba(192, 192, 192, 0.7); }
+        }
+
+        @keyframes glow-bronze {
+            0% { box-shadow: 0 10px 30px rgba(205, 127, 50, 0.4); }
+            100% { box-shadow: 0 15px 40px rgba(205, 127, 50, 0.7); }
+        }
+
+        /* Foto Kandidat */
+        .candidate-photo-container {
+            position: relative;
+            margin-bottom: 1rem;
+            z-index: 2;
+        }
+
+        .candidate-photo {
+            width: 120px;
+            height: 160px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transition: var(--transition);
+            position: relative;
+            z-index: 2;
+        }
+
+        .podium-stand.first .candidate-photo {
+            border-color: #FFD700;
+            transform: scale(1.1);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .podium-stand.second .candidate-photo {
+            border-color: #C0C0C0;
+        }
+
+        .podium-stand.third .candidate-photo {
+            border-color: #CD7F32;
+        }
+
+        .podium-stand.fourth .candidate-photo {
+            border-color: #964B00;
+        }
+
+        .photo-frame {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            border: 2px solid;
+            border-radius: 16px;
+            z-index: 1;
+            opacity: 0.7;
+        }
+
+        .podium-stand.first .photo-frame {
+            border-color: #FFD700;
+        }
+
+        .podium-stand.second .photo-frame {
+            border-color: #C0C0C0;
+        }
+
+        .podium-stand.third .photo-frame {
+            border-color: #CD7F32;
+        }
+
+        .podium-stand.fourth .photo-frame {
+            border-color: #964B00;
+        }
+
+        .podium-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+            line-height: 1.3;
+        }
+
+        .podium-votes {
+            font-size: 1.0rem;
+            font-weight: 800;
+            margin-top: 0.5rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            line-height: 1.2;
+        }
+
+        /* Stats Overview */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Results Section */
+        .results-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-top: 2rem;
+            margin-bottom: 3rem;
+            border: 1px solid var(--border);
+        }
+
+        .result-item {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: var(--light);
+            transition: var(--transition);
+        }
+
+        .result-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .result-bar-container {
+            height: 35px;
+            background: #e0e0e0;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-bar {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 18px;
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            color: white;
+            font-weight: bold;
+            min-width: 50px;
+        }
+
+        .result-percentage {
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        /* Download Section */
+        .download-section {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .download-section h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .download-section p {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+
+        .download-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.9rem 1.8rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            background: var(--secondary);
+        }
+
+        .download-btn.secondary {
+            background: var(--accent);
+        }
+
+        .download-btn.secondary:hover {
+            background: var(--secondary);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary);
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            width: 100%;
+        }
+
+        .footer-bottom button {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            margin: 0.2rem;
+        }
+
+        .footer-bottom button:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            position: fixed;
+            top: 80px;
+            right: 10px;
+            background: var(--primary);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            z-index: 1001;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            max-width: 120px;
+            text-align: center;
+        }
+
+        .status-connected {
+            background: var(--accent);
+        }
+
+        .status-disconnected {
+            background: var(--dark);
+        }
+
+        /* Loading Indicator */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+           100% { transform: rotate(360deg); }
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 0.8rem 1.2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-panel:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+        }
+
+        .admin-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            z-index: 2005;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .admin-popup h3 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        .admin-popup p {
+            margin-bottom: 1.5rem;
+            color: var(--text);
+            text-align: center;
+        }
+
+        .admin-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .admin-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            min-width: 140px;
+        }
+
+        .admin-btn-reset {
+            background: #3498db;
+            color: white;
+        }
+
+        .admin-btn-clear {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .admin-btn-pause {
+            background: #f39c12;
+            color: white;
+        }
+
+        .admin-btn-resume {
+            background: #27ae60;
+            color: white;
+        }
+
+        .admin-btn-close {
+            background: var(--light);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .admin-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .password-error {
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .admin-nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .admin-actions {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            /* Sembunyikan logout button di header pada mode mobile */
+            .admin-actions .btn-danger {
+                display: none;
+            }
+
+            .navbar-container {
+                display: none;
+            }
+
+            .hamburger-menu {
+                display: flex;
+            }
+
+            .page-header {
+                padding: 6rem 0 3rem;
+            }
+
+            .page-header h1 {
+                font-size: 2.2rem;
+            }
+
+            .podium-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                max-width: 400px;
+            }
+
+            .podium-stand {
+                height: 220px;
+            }
+
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-popup {
+                padding: 1.5rem;
+            }
+            
+            .admin-buttons {
+                flex-direction: column;
+            }
+            
+            .admin-btn {
+                width: 100%;
+            }
+
+            .result-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .download-btn {
+                display: block;
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+        }
+
+        @media (min-width: 769px) {
+            /* Sembunyikan logout button di hamburger menu pada mode desktop */
+            .mobile-logout {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .admin-nav {
+                padding: 0.8rem 1rem;
+            }
+            
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .podium-place {
+                font-size: 1rem;
+            }
+
+            .section {
+                padding: 3rem 1rem;
+            }
+
+            .results-container {
+                padding: 1.5rem;
+            }
+
+            .download-section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Status Indicators -->
+    <div class="status-indicator" id="statusIndicator">
+        🔄 Connecting...
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <i class="fas fa-cog"></i> Admin
+    </div>
+
+    <!-- Admin Popup -->
+    <div class="admin-popup" id="adminPopup">
+        <h3>Panel Admin</h3>
+        <p>Masukkan password</p>
+        
+        <input type="password" class="password-input" id="adminPassword" placeholder="Masukkan password..." onkeypress="handlePasswordEnter(event)">
+        <div class="password-error" id="passwordError">Password salah! Coba lagi.</div>
+        
+        <div class="admin-buttons">
+            <button class="admin-btn admin-btn-reset" onclick="verifyPasswordAndReset()">
+                <i class="fas fa-redo"></i> Reset Perangkat
+            </button>
+            <button class="admin-btn admin-btn-clear" onclick="verifyPasswordAndClear()">
+                <i class="fas fa-trash"></i> Hapus Semua Data
+            </button>
+            <button class="admin-btn admin-btn-pause" onclick="verifyPasswordAndPause()">
+                <i class="fas fa-pause"></i> Hentikan Voting
+            </button>
+            <button class="admin-btn admin-btn-resume" onclick="verifyPasswordAndResume()">
+                <i class="fas fa-play"></i> Lanjutkan Voting
+            </button>
+            <button class="admin-btn admin-btn-close" onclick="closeAdminPopup()">
+                <i class="fas fa-times"></i> Tutup
+            </button>
+        </div>
+    </div>
+
+    <header class="admin-header">
+        <nav class="admin-nav">
+            <div class="admin-logo">
+                <img src="Image/MPK2.png" alt="Logo MPK" onerror="this.style.display='none'">
+                <h1>Admin Dashboard - Reorganisasi</h1>
+            </div>
+            <div class="admin-actions">
+                <span id="adminWelcome">Halo, Admin!</span>
+                <div class="realtime-indicator" id="votingStatusIndicator">
+                    <span>●</span> Voting Aktif
+                </div>
+                <!-- Logout button untuk desktop -->
+                <button class="btn btn-danger" id="desktopLogout" onclick="logout()">Logout</button>
+            </div>
+        </nav>
+    </header>
+
+    <nav class="admin-navbar">
+        <div class="navbar-container">
+            <a href="admin.html" class="navbar-link">
+                Forksa
+            </a>
+            <a href="hasil-voting.html" class="navbar-link active">
+                Reorganisasi
+            </a>
+            <a href="kritik-MPK.html" class="navbar-link">
+                Kritik
+            </a>
+        </div>
+        
+        <!-- Hamburger Menu -->
+        <div class="hamburger-menu" id="hamburgerMenu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div class="mobile-nav" id="mobileNav">
+            <a href="admin.html" class="mobile-nav-link">
+                <i class="fas fa-home"></i> Forksa
+            </a>
+            <a href="hasil-voting.html" class="mobile-nav-link active">
+                <i class="fas fa-chart-bar"></i> Reorganisasi
+            </a>
+            <a href="kritik-MPK.html" class="mobile-nav-link">
+                <i class="fas fa-comment"></i> Kritik
+            </a>
+            <!-- Logout button untuk mobile -->
+            <div class="mobile-logout">
+                <a href="#" class="mobile-nav-link" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Hasil Voting Sementara</h1>
+            <p>Pantau Perkembangan pemilihan Ketua MPK</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-number" id="totalVotes">0</div>
+                <div class="stat-label">Total Suara</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="lastUpdate">-</div>
+                <div class="stat-label">Update Terakhir</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="leadingCandidate">-</div>
+                <div class="stat-label">Kandidat Unggul</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="participationRate">0%</div>
+                <div class="stat-label">Persentase Voting</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section podium-section" id="podiumSection">
+        <h2 class="section-title">PERINGKAT KANDIDAT</h2>
+        <div class="podium-container">
+            <!-- Posisi 1 -->
+            <div class="podium-item">
+                <div class="podium-place first">Ketua Umum</div>
+                <div class="podium-stand first">
+                    <div class="candidate-photo-container">
+                        <div class="photo-frame"></div>
+                        <img class="candidate-photo" id="podiumPhoto1" src="https://via.placeholder.com/120x90/FFD700/000000?text=Juara+1" alt="Kandidat 1">
+                    </div>
+                    <div class="podium-name" id="podiumName1">-</div>
+                    <div class="podium-votes" id="podiumVotes1">0 suara</div>
+                </div>
+            </div>
+            <!-- Posisi 2 -->
+            <div class="podium-item">
+                <div class="podium-place second">Pembimbing Muda</div>
+                <div class="podium-stand second">
+                    <div class="candidate-photo-container">
+                        <div class="photo-frame"></div>
+                        <img class="candidate-photo" id="podiumPhoto2" src="https://via.placeholder.com/120x90/C0C0C0/000000?text=Juara+2" alt="Kandidat 2">
+                    </div>
+                    <div class="podium-name" id="podiumName2">-</div>
+                    <div class="podium-votes" id="podiumVotes2">0 suara</div>
+                </div>
+            </div>
+            
+            <!-- Posisi 3 -->
+            <div class="podium-item">
+                <div class="podium-place third">Ketua 1</div>
+                <div class="podium-stand third">
+                    <div class="candidate-photo-container">
+                        <div class="photo-frame"></div>
+                        <img class="candidate-photo" id="podiumPhoto3" src="https://via.placeholder.com/120x90/CD7F32/FFFFFF?text=Juara+3" alt="Kandidat 3">
+                    </div>
+                    <div class="podium-name" id="podiumName3">-</div>
+                    <div class="podium-votes" id="podiumVotes3">0 suara</div>
+                </div>
+            </div>
+            
+            <!-- Posisi 4 -->
+            <div class="podium-item">
+                <div class="podium-place fourth">Ketua 2</div>
+                <div class="podium-stand fourth">
+                    <div class="candidate-photo-container">
+                        <div class="photo-frame"></div>
+                        <img class="candidate-photo" id="podiumPhoto4" src="https://via.placeholder.com/120x90/964B00/FFFFFF?text=Juara+4" alt="Kandidat 4">
+                    </div>
+                    <div class="podium-name" id="podiumName4">-</div>
+                    <div class="podium-votes" id="podiumVotes4">0 suara</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="results">
+        <h2 class="section-title">HASIL VOTING</h2>
+        <div class="results-container">
+            <div class="loading" id="resultsLoading">
+                <div class="loading-spinner"></div>
+                <p>Memuat hasil pemilihan...</p>
+            </div>
+            
+            <!-- Kandidat 1 -->
+            <div class="result-item">
+                <div class="result-header">
+                    <span>Vellisya Putri Ramadhany</span>
+                    <span id="voteCount1">0</span> suara
+                </div>
+                <div class="result-bar-container">
+                    <div class="result-bar" id="voteBar1" style="width: 0%">0%</div>
+                </div>
+                <div class="result-percentage" id="percentage1">0%</div>
+            </div>
+            
+            <!-- Kandidat 2 -->
+            <div class="result-item">
+                <div class="result-header">
+                    <span>Fadhil Ardiansyah</span>
+                    <span id="voteCount2">0</span> suara
+                </div>
+                <div class="result-bar-container">
+                    <div class="result-bar" id="voteBar2" style="width: 0%">0%</div>
+                </div>
+                <div class="result-percentage" id="percentage2">0%</div>
+            </div>
+            
+            <!-- Kandidat 3 -->
+            <div class="result-item">
+                <div class="result-header">
+                    <span>Farah Nabila Balqis</span>
+                    <span id="voteCount3">0</span> suara
+                </div>
+                <div class="result-bar-container">
+                    <div class="result-bar" id="voteBar3" style="width: 0%">0%</div>
+                </div>
+                <div class="result-percentage" id="percentage3">0%</div>
+            </div>
+
+            <!-- Kandidat 4 -->
+            <div class="result-item">
+                <div class="result-header">
+                    <span>Sultan Rafi Muzaki</span>
+                    <span id="voteCount4">0</span> suara
+                </div>
+                <div class="result-bar-container">
+                    <div class="result-bar" id="voteBar4" style="width: 0%">0%</div>
+                </div>
+                <div class="result-percentage" id="percentage4">0%</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="download-section">
+            <h3>📊 Unduh Hasil Voting</h3>
+            <p>Download hasil voting dalam format Excel</p>
+            <button class="download-btn" onclick="downloadAllVotes()">Download Semua Data Vote</button>
+            <button class="download-btn secondary" onclick="downloadExcelWithCharts()">Download Excel</button>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-bottom">
+            <button onclick="window.open('https://www.instagram.com/mpksmadapwt/', '_blank')">@mpksmadapwt</button>
+            <div style="margin-top: 10px;">
+                <button onclick="showDetailedStats()" style="background: rgba(255, 255, 255, 0.15);">📊 Statistik Detail</button>
+                <button onclick="showConnectionInfo()" style="background: rgba(255, 255, 255, 0.15);">🌐 Info Koneksi</button>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ==============================
+        // FIREBASE CONFIGURATION
+        // ==============================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVFjyWukHa8joBjlS9eKRP3Grq-fVFCkk",
+            authDomain: "mpk-smada.firebaseapp.com",
+            projectId: "mpk-smada",
+            storageBucket: "mpk-smada.firebasestorage.app",
+            messagingSenderId: "678684148175",
+            appId: "1:678684148175:web:22fefc347fdbfa351a52ba",
+            measurementId: "G-HTE5ZW5BW0"
+        };
+
+        // ==============================
+        // INITIALIZE FIREBASE
+        // ==============================
+        let db;
+        let firebaseApp;
+        let analytics;
+        let unsubscribeListener = null;
+
+        try {
+            firebaseApp = firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            analytics = firebase.analytics();
+            
+            console.log('✅ Firebase initialized successfully');
+            updateStatus('🟢 Connected', 'status-connected');
+            
+        } catch (error) {
+            console.error('❌ Firebase initialization error:', error);
+            updateStatus('🔴 Firebase Error', 'status-disconnected');
+            // Fallback: use mock data if Firebase fails
+            setupMockData();
+        }
+
+        // ==============================
+        // DATA KANDIDAT
+        // ==============================
+        const candidates = {
+            1: { 
+                name: "Vellisya Putri Ramadhany", 
+                img: "Image/Ivel 2.jpeg", 
+                vision: "Menjadikan MPK sebagai wadah yang peduli, bijak, dan bermanfaat bagi seluruh warga sekolah dengan mengedepankan 'PUNAKAWAN'" 
+            },
+            2: { 
+                name: "Fadhil Ardiansyah", 
+                img: "Image/Fadhil 2.jpeg", 
+                vision: "Menjadikan MPK sebagai organisasi pengawas yang kritis, aspiratif, dan solutif yang mampu menjadi teadan dalam membangun budaya demokratis di lingkungan sekolah." 
+            },
+            3: { 
+                name: "Farah Nabila Balqis", 
+                img: "Image/Farah 2.jpeg", 
+                vision: "Menjadikan MPK sebagai lembaga legislatif siswa yang modern, transparan, dan akuntabel, serta menjadi jembatan aspirasi yang responsif demi terwujudnya sinergi organisasi dan ekstrakurikuler bagi kemajuan seluruh siswa di sekolah." 
+            },
+            4: { 
+                name: "Sultan Rafi Muzaki", 
+                img: "Image/Sultan 2.jpeg", 
+                vision: "Mewujudkan MPK yang aspiratif, transparan, dan sebagai wadah perjuangan suara siswa demi terciptanya organisasi yang progresif, demokratis, dan berintegritas" 
+            }
+        };
+
+        // ==============================
+        // ADMIN PASSWORD CONFIGURATION
+        // ==============================
+        const ADMIN_PASSWORD = "12345";
+
+        // ==============================
+        // VOTING SESSION MANAGEMENT
+        // ==============================
+        const VOTING_SESSION_KEY = 'votingSession';
+        const VOTING_STATUS_KEY = 'votingStatus';
+        
+        // ==============================
+        // AUTHENTICATION FUNCTIONS
+        // ==============================
+        function checkAuthentication() {
+            const isAuthenticated = localStorage.getItem('adminAuthenticated') === 'true';
+            const loginTime = localStorage.getItem('adminLoginTime');
+            const currentTime = new Date().getTime();
+            
+            // Check if session is still valid (8 hours)
+            const sessionDuration = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+            const isSessionValid = loginTime && (currentTime - parseInt(loginTime)) < sessionDuration;
+            
+            if (isAuthenticated && isSessionValid) {
+                // Update welcome message dengan nama admin dari localStorage
+                const adminName = localStorage.getItem('adminName') || 'Admin';
+                document.getElementById('adminWelcome').textContent = `Halo, ${adminName}!`;
+                return true;
+            } else {
+                // Clear invalid session dan redirect ke login
+                if (!isSessionValid) {
+                    localStorage.removeItem('adminAuthenticated');
+                    localStorage.removeItem('adminName');
+                    localStorage.removeItem('adminLoginTime');
+                }
+                window.location.href = 'admin.html';
+                return false;
+            }
+        }
+
+        function logout() {
+            // Hentikan real-time listener
+            if (unsubscribeListener) {
+                unsubscribeListener();
+                unsubscribeListener = null;
+            }
+            
+            // Clear semua data autentikasi
+            localStorage.removeItem('adminAuthenticated');
+            localStorage.removeItem('adminName');
+            localStorage.removeItem('adminLoginTime');
+            
+            // Redirect ke halaman login admin
+            window.location.href = 'admin.html';
+            
+            console.log('✅ Admin logged out');
+        }
+
+        // Initialize voting session
+        function initializeVotingSession() {
+            if (!localStorage.getItem(VOTING_SESSION_KEY)) {
+                const newSession = generateSessionId();
+                localStorage.setItem(VOTING_SESSION_KEY, newSession);
+                console.log('🆕 New voting session created:', newSession);
+                return newSession;
+            }
+            return localStorage.getItem(VOTING_SESSION_KEY);
+        }
+        
+        function generateSessionId() {
+            return 'session_' + Math.random().toString(36).substring(2) + '_' + Date.now().toString(36);
+        }
+        
+        // Initialize voting status
+        function initializeVotingStatus() {
+            if (!localStorage.getItem(VOTING_STATUS_KEY)) {
+                localStorage.setItem(VOTING_STATUS_KEY, 'active');
+                console.log('🆕 Voting status initialized: active');
+            }
+            updateVotingStatusDisplay();
+            return localStorage.getItem(VOTING_STATUS_KEY);
+        }
+        
+        // Update voting status display di realtime indicator
+        function updateVotingStatusDisplay() {
+            const votingStatus = localStorage.getItem(VOTING_STATUS_KEY) || 'active';
+            const statusElement = document.getElementById('votingStatusIndicator');
+            
+            if (votingStatus === 'active') {
+                statusElement.innerHTML = '<span>●</span> Voting Aktif';
+                statusElement.className = 'realtime-indicator';
+            } else {
+                statusElement.innerHTML = '<span>●</span> Voting Dihentikan';
+                statusElement.className = 'realtime-indicator paused';
+            }
+        }
+        
+        function pauseVoting() {
+            localStorage.setItem(VOTING_STATUS_KEY, 'paused');
+            console.log('⏸️ Voting paused');
+            updateVotingStatusDisplay();
+            
+            if (db) {
+                db.collection('system').doc('votingStatus').set({
+                    status: 'paused',
+                    updatedAt: new Date().toISOString()
+                }).catch(err => console.error('Error updating voting status:', err));
+            }
+        }
+        
+        function resumeVoting() {
+            localStorage.setItem(VOTING_STATUS_KEY, 'active');
+            console.log('▶️ Voting resumed');
+            updateVotingStatusDisplay();
+            
+            if (db) {
+                db.collection('system').doc('votingStatus').set({
+                    status: 'active',
+                    updatedAt: new Date().toISOString()
+                }).catch(err => console.error('Error updating voting status:', err));
+            }
+        }
+
+        // ==============================
+        // ADMIN PASSWORD FUNCTIONS
+        // ==============================
+        function verifyPassword() {
+            const passwordInput = document.getElementById('adminPassword');
+            const passwordError = document.getElementById('passwordError');
+            
+            if (passwordInput.value === ADMIN_PASSWORD) {
+                passwordError.style.display = 'none';
+                passwordInput.value = '';
+                return true;
+            } else {
+                passwordError.style.display = 'block';
+                passwordInput.value = '';
+                passwordInput.focus();
+                return false;
+            }
+        }
+        
+        function handlePasswordEnter(event) {
+            if (event.key === 'Enter') {
+                verifyPasswordAndReset();
+            }
+        }
+        
+        function verifyPasswordAndReset() {
+            if (verifyPassword()) {
+                resetVotingData();
+            }
+        }
+        
+        function verifyPasswordAndClear() {
+            if (verifyPassword()) {
+                clearAllVotes();
+            }
+        }
+        
+        function verifyPasswordAndPause() {
+            if (verifyPassword()) {
+                pauseVoting();
+                alert('⏸️ Voting telah dihentikan!');
+                closeAdminPopup();
+            }
+        }
+        
+        function verifyPasswordAndResume() {
+            if (verifyPassword()) {
+                resumeVoting();
+                alert('▶️ Voting telah dilanjutkan!');
+                closeAdminPopup();
+            }
+        }
+
+        function resetVotingData() {
+            localStorage.removeItem(VOTING_SESSION_KEY);
+            initializeVotingSession();
+            alert('✅ Data voting berhasil direset! Perangkat sekarang dapat memilih ulang.');
+            closeAdminPopup();
+            console.log('🔄 Voting data reset by admin');
+        }
+
+        // ==============================
+        // FIREBASE FIRESTORE FUNCTIONS
+        // ==============================
+        class FirebaseResultsManager {
+            constructor() {
+                if (!db) {
+                    throw new Error('Firestore not initialized');
+                }
+                this.votesCollection = db.collection('votes');
+                this.systemCollection = db.collection('system');
+                console.log('✅ Firebase Results Manager initialized');
+            }
+
+            setupResultsListener(callback) {
+                if (!db) {
+                    console.error('Firestore not available for real-time updates');
+                    return () => {};
+                }
+
+                return this.votesCollection.onSnapshot((snapshot) => {
+                    const voteCount = {
+                        candidate1: 0,
+                        candidate2: 0,
+                        candidate3: 0,
+                        candidate4: 0,
+                        total: snapshot.size,
+                        lastUpdated: new Date().toISOString()
+                    };
+
+                    snapshot.forEach(doc => {
+                        const vote = doc.data();
+                        if (vote.candidateId === 1) voteCount.candidate1++;
+                        else if (vote.candidateId === 2) voteCount.candidate2++;
+                        else if (vote.candidateId === 3) voteCount.candidate3++;
+                        else if (vote.candidateId === 4) voteCount.candidate4++;
+                    });
+
+                    console.log('🔄 Real-time results update:', voteCount);
+                    callback(voteCount);
+                    
+                }, (error) => {
+                    console.error('❌ Error in results listener:', error);
+                    updateStatus('🔴 Connection Error', 'status-disconnected');
+                    
+                    // Retry connection after 5 seconds
+                    setTimeout(() => {
+                        console.log('🔄 Retrying Firestore connection...');
+                        this.setupResultsListener(callback);
+                    }, 5000);
+                });
+            }
+
+            setupVotingStatusListener() {
+                if (!db) return () => {};
+
+                return this.systemCollection.doc('votingStatus').onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        if (data.status === 'paused') {
+                            localStorage.setItem(VOTING_STATUS_KEY, 'paused');
+                            updateVotingStatusDisplay();
+                            console.log('🔔 Voting status updated: paused');
+                        } else if (data.status === 'active') {
+                            localStorage.setItem(VOTING_STATUS_KEY, 'active');
+                            updateVotingStatusDisplay();
+                            console.log('🔔 Voting status updated: active');
+                        }
+                    }
+                }, (error) => {
+                    console.error('❌ Error in voting status listener:', error);
+                });
+            }
+
+            async getAllVotes() {
+                try {
+                    if (!db) throw new Error('Firestore not available');
+                    
+                    const snapshot = await this.votesCollection.orderBy('createdAt', 'desc').get();
+                    const votes = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        votes.push({ 
+                            id: doc.id, 
+                            ...data,
+                            formattedTime: data.createdAt ? 
+                                new Date(data.createdAt.toDate()).toLocaleString('id-ID') : 'N/A'
+                        });
+                    });
+                    return votes;
+                } catch (error) {
+                    console.error('Error getting votes:', error);
+                    throw error;
+                }
+            }
+
+            async clearAllVotes() {
+                try {
+                    if (!db) throw new Error('Firestore not available');
+
+                    const batch = db.batch();
+                    const votesSnapshot = await this.votesCollection.get();
+                    
+                    if (votesSnapshot.empty) {
+                        console.log('No votes to clear');
+                        return true;
+                    }
+                    
+                    votesSnapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    
+                    await batch.commit();
+                    console.log('✅ All votes cleared from Firestore');
+                    return true;
+                } catch (error) {
+                    console.error('❌ Error clearing votes:', error);
+                    throw error;
+                }
+            }
+        }
+
+        // ==============================
+        // MOCK DATA FOR FALLBACK
+        // ==============================
+        function setupMockData() {
+            console.log('🔄 Setting up mock data for demonstration');
+            
+            // Initialize with some mock votes
+            const mockResults = {
+                candidate1: Math.floor(Math.random() * 50) + 20,
+                candidate2: Math.floor(Math.random() * 50) + 15,
+                candidate3: Math.floor(Math.random() * 50) + 10,
+                candidate4: Math.floor(Math.random() * 50) + 5,
+                total: 0,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            mockResults.total = mockResults.candidate1 + mockResults.candidate2 + mockResults.candidate3 + mockResults.candidate4;
+            
+            // Update display with mock data
+            updateResultsDisplay(mockResults);
+            
+            // Simulate real-time updates every 10 seconds
+            setInterval(() => {
+                // Randomly add votes
+                const randomCandidate = Math.floor(Math.random() * 4) + 1;
+                mockResults[`candidate${randomCandidate}`]++;
+                mockResults.total++;
+                mockResults.lastUpdated = new Date().toISOString();
+                
+                updateResultsDisplay(mockResults);
+                console.log('🔄 Mock data updated');
+            }, 10000);
+        }
+
+        // Initialize Firebase Manager
+        let resultsManager;
+        try {
+            resultsManager = new FirebaseResultsManager();
+        } catch (error) {
+            console.error('Failed to initialize Results Manager:', error);
+            updateStatus('🔴 System Error', 'status-disconnected');
+            setupMockData();
+        }
+
+        // ==============================
+        // UTILITY FUNCTIONS
+        // ==============================
+        function updateStatus(message, className) {
+            const statusIndicator = document.getElementById('statusIndicator');
+            statusIndicator.textContent = message;
+            statusIndicator.className = 'status-indicator ' + (className || '');
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        // ==============================
+        // ADMIN FUNCTIONS
+        // ==============================
+        function showAdminPanel() {
+            document.getElementById('adminPopup').style.display = 'block';
+            document.getElementById('adminPassword').focus();
+        }
+
+        function closeAdminPopup() {
+            document.getElementById('adminPopup').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('passwordError').style.display = 'none';
+        }
+
+        // ==============================
+        // HAMBURGER MENU FUNCTIONS
+        // ==============================
+        function toggleMobileMenu() {
+            const mobileNav = document.getElementById('mobileNav');
+            mobileNav.classList.toggle('active');
+            
+            const hamburger = document.getElementById('hamburgerMenu');
+            hamburger.classList.toggle('active');
+        }
+
+        // ==============================
+        // DOWNLOAD FUNCTIONS
+        // ==============================
+        async function downloadAllVotes() {
+            try {
+                if (!resultsManager) throw new Error('Sistem hasil voting tidak tersedia');
+                
+                const votes = await resultsManager.getAllVotes();
+                const results = calculateResults(votes);
+                
+                const rawData = [
+                    ['DATA MENTAH VOTING MPK SMADA', '', '', ''],
+                    ['Tanggal Export', new Date().toLocaleString('id-ID'), '', ''],
+                    ['Total Suara', results.total, '', ''],
+                    ['', '', '', ''],
+                    ['ID Vote', 'Kandidat', 'Waktu Vote', 'User ID']
+                ];
+                
+                votes.forEach(vote => {
+                    rawData.push([
+                        vote.id,
+                        candidates[vote.candidateId]?.name || 'Unknown',
+                        vote.formattedTime || 'N/A',
+                        vote.userId || 'N/A'
+                    ]);
+                });
+                
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(rawData);
+                
+                const colWidths = [
+                    { wch: 25 },
+                    { wch: 35 },
+                    { wch: 20 },
+                    { wch: 20 }
+                ];
+                ws['!cols'] = colWidths;
+                
+                XLSX.utils.book_append_sheet(wb, ws, "Data Mentah Voting");
+                const fileName = `data-voting-mpk-${new Date().toISOString().split('T')[0]}.xlsx`;
+                XLSX.writeFile(wb, fileName);
+                
+                alert('✅ Semua data vote berhasil diunduh dalam format Excel!');
+                
+            } catch (error) {
+                console.error('Error downloading all votes:', error);
+                alert('❌ Error downloading data vote: ' + error.message);
+            }
+        }
+
+        async function downloadExcelWithCharts() {
+            try {
+                if (!resultsManager) throw new Error('Sistem hasil voting tidak tersedia');
+                
+                const votes = await resultsManager.getAllVotes();
+                const results = calculateResults(votes);
+                
+                let maxVotes = 0;
+                let leadingPercentage = '0%';
+                
+                for (let i = 1; i <= 4; i++) {
+                    if (results[`candidate${i}`] > maxVotes) {
+                        maxVotes = results[`candidate${i}`];
+                        leadingPercentage = results.total > 0 ? 
+                            ((results[`candidate${i}`] / results.total) * 100).toFixed(1) + '%' : '0%';
+                    }
+                }
+                
+                const reportData = [
+                    ['LAPORAN HASIL VOTING MPK SMADA NEGERI 2 PURWOKERTO'],
+                    [''],
+                    ['Periode Voting', '2024'],
+                    ['Tanggal Export', new Date().toLocaleString('id-ID')],
+                    ['Total Pemilih', '500 siswa'],
+                    ['Total Suara Masuk', results.total],
+                    ['Persentase Kandidat Unggul', leadingPercentage],
+                    [''],
+                    ['HASIL PERINGKAT KANDIDAT'],
+                    ['Peringkat', 'Nama Kandidat', 'Jumlah Suara', 'Persentase', 'Status']
+                ];
+                
+                const sortedCandidates = [
+                    { id: 1, name: candidates[1].name, votes: results.candidate1 },
+                    { id: 2, name: candidates[2].name, votes: results.candidate2 },
+                    { id: 3, name: candidates[3].name, votes: results.candidate3 },
+                    { id: 4, name: candidates[4].name, votes: results.candidate4 }
+                ].sort((a, b) => b.votes - a.votes);
+                
+                sortedCandidates.forEach((candidate, index) => {
+                    const percentage = results.total > 0 ? 
+                        ((candidate.votes / results.total) * 100).toFixed(1) + '%' : '0%';
+                    
+                    const status = index === 0 ? 'Ketua Umum' : 
+                                  index === 1 ? 'Pembimbing Muda' : 
+                                  index === 2 ? 'Ketua 1' : 'Ketua 2';
+                    
+                    reportData.push([
+                        index + 1,
+                        candidate.name,
+                        candidate.votes,
+                        percentage,
+                        status
+                    ]);
+                });
+                
+                reportData.push(['', '', '', '', '']);
+                reportData.push(['VISI DAN MISI KANDIDAT']);
+                reportData.push(['Nama Kandidat', 'Visi', '', '', '']);
+                
+                sortedCandidates.forEach(candidate => {
+                    reportData.push([
+                        candidate.name,
+                        candidates[candidate.id].vision,
+                        '', '', ''
+                    ]);
+                });
+                
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(reportData);
+                
+                const colWidths = [
+                    { wch: 10 },
+                    { wch: 35 },
+                    { wch: 15 },
+                    { wch: 12 },
+                    { wch: 12 }
+                ];
+                ws['!cols'] = colWidths;
+                
+                XLSX.utils.book_append_sheet(wb, ws, "Laporan Hasil Voting");
+                const fileName = `laporan-voting-mpk-${new Date().toISOString().split('T')[0]}.xlsx`;
+                XLSX.writeFile(wb, fileName);
+                
+                alert('✅ Laporan voting lengkap berhasil diunduh!');
+                
+            } catch (error) {
+                console.error('Error downloading Excel report:', error);
+                alert('❌ Error downloading report: ' + error.message);
+            }
+        }
+
+        // ==============================
+        // UTILITY FUNCTIONS
+        // ==============================
+        function calculateResults(votes) {
+            const voteCount = {
+                candidate1: 0,
+                candidate2: 0,
+                candidate3: 0,
+                candidate4: 0,
+                total: votes.length
+            };
+
+            votes.forEach(vote => {
+                if (vote.candidateId === 1) voteCount.candidate1++;
+                else if (vote.candidateId === 2) voteCount.candidate2++;
+                else if (vote.candidateId === 3) voteCount.candidate3++;
+                else if (vote.candidateId === 4) voteCount.candidate4++;
+            });
+
+            return voteCount;
+        }
+
+        async function clearAllVotes() {
+            if (!resultsManager) {
+                alert('❌ Sistem hasil voting tidak tersedia');
+                return;
+            }
+            
+            if (confirm('⚠️ YAKIN hapus SEMUA data vote dari database?\n\nTindakan ini tidak dapat dibatalkan dan akan menghapus semua data voting permanen!')) {
+                try {
+                    document.getElementById('resultsLoading').style.display = 'block';
+                    await resultsManager.clearAllVotes();
+                    alert('✅ Semua data vote telah dihapus dari database!');
+                    closeAdminPopup();
+                    location.reload();
+                } catch (error) {
+                    alert('❌ Error clearing votes: ' + error.message);
+                } finally {
+                    document.getElementById('resultsLoading').style.display = 'none';
+                }
+            }
+        }
+
+        // ==============================
+        // DISPLAY FUNCTIONS
+        // ==============================
+        function updateResultsDisplay(results) {
+            try {
+                document.getElementById('resultsLoading').style.display = 'none';
+                
+                const totalVotes = results.total;
+                
+                // Update vote counts and percentages
+                for (let i = 1; i <= 4; i++) {
+                    const candidateVotes = results[`candidate${i}`];
+                    const percentage = totalVotes > 0 ? Math.round((candidateVotes / totalVotes) * 100) : 0;
+                    
+                    document.getElementById(`voteCount${i}`).textContent = candidateVotes;
+                    document.getElementById(`voteBar${i}`).style.width = `${percentage}%`;
+                    document.getElementById(`voteBar${i}`).textContent = `${percentage}%`;
+                    document.getElementById(`percentage${i}`).textContent = `${percentage}%`;
+                }
+                
+                // Update stats overview
+                document.getElementById('totalVotes').textContent = totalVotes;
+                document.getElementById('lastUpdate').textContent = formatTime(results.lastUpdated);
+                
+                // Find leading candidate
+                let maxVotes = 0;
+                let leadingCandidate = '-';
+                let leadingPercentage = '0%';
+                
+                for (let i = 1; i <= 4; i++) {
+                    const candidateVotes = results[`candidate${i}`];
+                    const percentage = totalVotes > 0 ? Math.round((candidateVotes / totalVotes) * 100) : 0;
+                    
+                    if (candidateVotes > maxVotes) {
+                        maxVotes = candidateVotes;
+                        leadingCandidate = candidates[i].name.split(' ')[0];
+                        leadingPercentage = `${percentage}%`;
+                    }
+                }
+                
+                document.getElementById('leadingCandidate').textContent = leadingCandidate;
+                document.getElementById('participationRate').textContent = leadingPercentage;
+                
+                // Update podium display
+                updatePodiumDisplay(results);
+                
+                console.log('Results display updated:', results);
+                
+            } catch (error) {
+                console.error('Error updating results display:', error);
+            }
+        }
+
+        function updatePodiumDisplay(results) {
+            const candidatesWithVotes = [
+                { id: 1, name: candidates[1].name, img: candidates[1].img, votes: results.candidate1 },
+                { id: 2, name: candidates[2].name, img: candidates[2].img, votes: results.candidate2 },
+                { id: 3, name: candidates[3].name, img: candidates[3].img, votes: results.candidate3 },
+                { id: 4, name: candidates[4].name, img: candidates[4].img, votes: results.candidate4 }
+            ];
+            
+            candidatesWithVotes.sort((a, b) => b.votes - a.votes);
+            
+            for (let i = 0; i < 4; i++) {
+                const position = i + 1;
+                const candidate = candidatesWithVotes[i];
+                
+                document.getElementById(`podiumName${position}`).textContent = candidate.name;
+                document.getElementById(`podiumPhoto${position}`).src = candidate.img;
+                document.getElementById(`podiumVotes${position}`).textContent = candidate.votes + " suara";
+            }
+            
+            if (results.total > 0) {
+                document.getElementById('podiumSection').style.display = 'block';
+            }
+        }
+
+        function showDetailedStats() {
+            try {
+                if (!resultsManager) {
+                    alert('❌ Sistem hasil voting tidak tersedia');
+                    return;
+                }
+                
+                // In a real implementation, you would fetch actual data here
+                const statsMessage = `📊 STATISTIK DETAIL VOTING:\n\nFitur ini akan menampilkan statistik lengkap ketika data tersedia.\n\nData real-time sedang dipantau...`;
+                alert(statsMessage);
+            } catch (error) {
+                console.error('Error showing detailed stats:', error);
+                alert('❌ Error loading detailed statistics: ' + error.message);
+            }
+        }
+
+        function showConnectionInfo() {
+            const isConnected = !!db;
+            const info = `🌐 INFO KONEKSI:\n\nFirebase Project: mpk-smada\nStatus: ${isConnected ? 'Connected ✅' : 'Disconnected ❌'}\nReal-time: ${isConnected ? 'Aktif' : 'Inactive'}\n✅ Data tersinkronisasi.`;
+            alert(info);
+        }
+
+        // ==============================
+        // NAVIGATION FUNCTION
+        // ==============================
+        function goToAdmin() {
+            window.location.href = 'admin.html';
+        }
+
+        // ==============================
+        // INITIALIZATION
+        // ==============================
+        window.onload = function() {
+            console.log('Aplikasi hasil voting dengan Firebase dimulai');
+            
+            // Check authentication first
+            if (!checkAuthentication()) {
+                return;
+            }
+            
+            initializeVotingSession();
+            initializeVotingStatus();
+            
+            document.getElementById('adminPanel').addEventListener('click', showAdminPanel);
+            document.getElementById('hamburgerMenu').addEventListener('click', toggleMobileMenu);
+
+            if (resultsManager && resultsManager.setupResultsListener) {
+                unsubscribeListener = resultsManager.setupResultsListener(updateResultsDisplay);
+                console.log('✅ Real-time results listener activated');
+                
+                resultsManager.setupVotingStatusListener();
+                console.log('✅ Voting status listener activated');
+            } else {
+                console.error('❌ Cannot setup results listener');
+                updateStatus('🔴 Disconnected', 'status-disconnected');
+            }
+
+            setTimeout(() => {
+                if (db) {
+                    updateStatus('🟢 Connected', 'status-connected');
+                }
+            }, 2000);
+        };
+    </script>
+</body>
+</html>

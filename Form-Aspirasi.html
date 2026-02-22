@@ -1,0 +1,2103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Form Aspirasi - FORKSA MPK SMADA</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Font Awesome Icons (untuk interaktivitas) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+            overflow-x: hidden;
+        }
+
+        /* Header & Navigation - TETAP SAMA SEPERTI ASLI */
+        .header {
+            background: rgb(110, 1, 1);
+            backdrop-filter: blur(20px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            display: flex;
+            transition: all 0.3s ease;
+        }
+
+        .logo img {
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+        }
+
+        .header.scrolled .logo {
+            color: #2c3e50;
+            text-shadow: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .header.scrolled .nav-link {
+            color: #2c3e50;
+            text-shadow: none;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #ffffff, #e74c3c);
+            transition: width 0.3s ease;
+        }
+
+        .header.scrolled .nav-link::after {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-link:hover {
+            color: #e74c3c;
+            transform: translateY(-2px);
+        }
+
+        .header.scrolled .nav-link:hover {
+            color: #3498db;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled .mobile-menu-toggle {
+            color: #dd463c;
+        }
+
+        /* Page Header - DITINGKATKAN RESPONSIVENESSNYA */
+        .page-header {
+            padding: 120px 1rem 60px;
+            text-align: center;
+            background: linear-gradient(135deg, #5f010d, #781f19);
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 100px 1rem 40px;
+            }
+            
+            .page-title {
+                font-size: 1.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 1.5rem;
+            }
+        }
+        
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        
+        .breadcrumb li {
+            margin: 0.3rem 0.5rem;
+        }
+        
+        .breadcrumb li:not(:last-child)::after {
+            content: "›";
+            margin-left: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        /* Section - DITINGKATKAN RESPONSIVENESSNYA */
+        .section {
+            padding: 3rem 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 768px) {
+            .section {
+                padding: 3rem 2rem;
+            }
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2.5rem;
+            color: #2c3e50;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 1.8rem;
+                margin-bottom: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .section-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            border-radius: 2px;
+        }
+
+        /* Form Container - DITINGKATKAN RESPONSIVENESSNYA */
+        .aspiration-form {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            overflow: hidden;
+            animation: formAppear 0.6s ease-out;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .aspiration-form {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .aspiration-form {
+                padding: 1rem;
+            }
+        }
+
+        .aspiration-form:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes formAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Step Indicator - DITINGKATKAN RESPONSIVENESSNYA */
+        .form-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .form-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: #e0e0e0;
+            z-index: 1;
+        }
+
+        @media (max-width: 480px) {
+            .form-steps::before {
+                display: none;
+            }
+            
+            .form-steps {
+                background: #f8f9fa;
+                border-radius: 30px;
+                padding: 0.5rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            flex: 1;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            border: 3px solid white;
+        }
+
+        @media (max-width: 480px) {
+            .step-number {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+                margin-bottom: 0.3rem;
+            }
+            
+            .step-label {
+                font-size: 0.75rem;
+            }
+        }
+
+        .step.active .step-number {
+            background: #e74c3c;
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.2);
+        }
+
+        .step.completed .step-number {
+            background: #27ae60;
+            color: white;
+        }
+
+        .step.completed .step-number::after {
+            content: '✓';
+            font-size: 1.2rem;
+        }
+
+        .step-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .step.active .step-label {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        /* Form Steps */
+        .form-step {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Form Groups - DITINGKATKAN RESPONSIVENESSNYA */
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px; /* Mencegah zoom di iOS */
+            transition: all 0.3s ease;
+            font-family: inherit;
+            background: #f9f9f9;
+        }
+
+        @media (max-width: 768px) {
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                padding: 0.8rem;
+            }
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #e74c3c;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 140px;
+        }
+
+        /* Character Counter */
+        .char-counter {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.3rem;
+        }
+
+        /* Selection Cards - DITINGKATKAN RESPONSIVENESSNYA */
+        .selection-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .selection-cards {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .selection-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .selection-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1.2rem 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @media (max-width: 768px) {
+            .selection-card {
+                padding: 1rem 0.5rem;
+            }
+        }
+
+        .selection-card:hover {
+            border-color: #e74c3c;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .selection-card:active {
+            transform: scale(0.98);
+        }
+
+        .selection-card.selected {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, #fff5f5, #ffeaea);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.15);
+        }
+
+        .selection-card.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .selection-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .selection-icon {
+                font-size: 1.8rem;
+            }
+        }
+
+        .selection-card h3 {
+            margin-bottom: 0.3rem;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+
+        .selection-card p {
+            color: #666;
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+
+        /* Form Navigation - DITINGKATKAN RESPONSIVENESSNYA */
+        .form-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        @media (max-width: 480px) {
+            .form-navigation {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+        }
+
+        .nav-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @media (max-width: 480px) {
+            .nav-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 0.8rem;
+            }
+        }
+
+        .btn-prev {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-prev:hover {
+            background: #e9ecef;
+            border-color: #bdc3c7;
+        }
+
+        .btn-next {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            margin-left: auto;
+        }
+
+        @media (max-width: 480px) {
+            .btn-next {
+                margin-left: 0;
+            }
+        }
+
+        .btn-next:hover {
+            background: linear-gradient(45deg, #2980b9, #1f639e);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-submit {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(45deg, #c0392b, #a93226);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+            width: 33%;
+            transition: width 0.5s ease;
+            border-radius: 3px;
+        }
+
+        .progress-text {
+            text-align: right;
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* MODAL INTERAKTIF - Enhanced Version */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem 1.5rem;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (min-width: 480px) {
+            .modal-content {
+                padding: 2.5rem;
+            }
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            border-radius: 20px 20px 0 0;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.5) translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounceIn 0.6s;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            animation: slideUp 0.5s 0.2s both;
+        }
+
+        .modal p {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            animation: slideUp 0.5s 0.3s both;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            animation: slideUp 0.5s 0.4s both;
+        }
+
+        @media (min-width: 480px) {
+            .modal-actions {
+                flex-direction: row;
+                justify-content: center;
+                gap: 1rem;
+            }
+        }
+
+        .modal-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            flex: 1;
+            max-width: 200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        @media (min-width: 480px) {
+            .modal-btn {
+                margin: 0;
+            }
+        }
+
+        .modal-btn:hover {
+            background: linear-gradient(45deg, #2980b9, #1f639e);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .modal-btn:active {
+            transform: scale(0.98);
+        }
+
+        .modal-btn.secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #e0e0e0;
+        }
+
+        .modal-btn.secondary:hover {
+            background: #e9ecef;
+            border-color: #bdc3c7;
+        }
+
+        /* Success Animation */
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            position: relative;
+        }
+
+        .check-icon {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            border-radius: 50%;
+            box-sizing: content-box;
+            border: 4px solid #27ae60;
+        }
+
+        .icon-line {
+            height: 5px;
+            background-color: #27ae60;
+            display: block;
+            border-radius: 2px;
+            position: absolute;
+            z-index: 10;
+        }
+
+        .icon-line.line-tip {
+            top: 46px;
+            left: 14px;
+            width: 25px;
+            transform: rotate(45deg);
+            animation: icon-line-tip 0.5s;
+        }
+
+        .icon-line.line-long {
+            top: 38px;
+            right: 8px;
+            width: 47px;
+            transform: rotate(-45deg);
+            animation: icon-line-long 0.5s;
+        }
+
+        @keyframes icon-line-tip {
+            0% {
+                width: 0;
+                left: 1px;
+                top: 19px;
+            }
+            54% {
+                width: 0;
+                left: 1px;
+                top: 19px;
+            }
+            70% {
+                width: 50px;
+                left: -8px;
+                top: 37px;
+            }
+            84% {
+                width: 17px;
+                left: 21px;
+                top: 48px;
+            }
+            100% {
+                width: 25px;
+                left: 14px;
+                top: 46px;
+            }
+        }
+
+        @keyframes icon-line-long {
+            0% {
+                width: 0;
+                right: 46px;
+                top: 54px;
+            }
+            65% {
+                width: 0;
+                right: 46px;
+                top: 54px;
+            }
+            84% {
+                width: 55px;
+                right: 0px;
+                top: 35px;
+            }
+            100% {
+                width: 47px;
+                right: 8px;
+                top: 38px;
+            }
+        }
+
+        .icon-circle {
+            top: -4px;
+            left: -4px;
+            z-index: 10;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            position: absolute;
+            box-sizing: content-box;
+            border: 4px solid rgba(39, 174, 96, 0.5);
+        }
+
+        .icon-fix {
+            top: 8px;
+            width: 5px;
+            left: 26px;
+            z-index: 1;
+            height: 85px;
+            position: absolute;
+            transform: rotate(-45deg);
+            background-color: white;
+        }
+
+        /* Confetti Animation */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f2d74e;
+            opacity: 0.7;
+            top: -10px;
+            animation: confetti-fall 3s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100%) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .confetti:nth-child(1) { left: 10%; background: #f2d74e; animation-delay: 0s; }
+        .confetti:nth-child(2) { left: 20%; background: #95c3de; animation-delay: 0.5s; }
+        .confetti:nth-child(3) { left: 30%; background: #ff9a9e; animation-delay: 1s; }
+        .confetti:nth-child(4) { left: 40%; background: #4caf50; animation-delay: 1.5s; }
+        .confetti:nth-child(5) { left: 50%; background: #ff6b6b; animation-delay: 2s; }
+        .confetti:nth-child(6) { left: 60%; background: #a8e6cf; animation-delay: 2.5s; }
+        .confetti:nth-child(7) { left: 70%; background: #ffd3b6; animation-delay: 3s; }
+        .confetti:nth-child(8) { left: 80%; background: #d4a5a5; animation-delay: 3.5s; }
+        .confetti:nth-child(9) { left: 90%; background: #9b59b6; animation-delay: 4s; }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Back Button - DITINGKATKAN RESPONSIVENESSNYA */
+        .back-section {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #6c757d;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        /* Footer - TETAP SAMA DENGAN MINOR RESPONSIVE ADJUSTMENTS */
+        .footer {
+            background: rgb(110, 1, 1);
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                padding: 0 1rem;
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: #3498db;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: #bdc3c7;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .footer-section a:hover {
+            color: #3498db;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #34495e;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            color: #bdc3c7;
+        }
+
+        .footer-bottom button {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .footer-bottom button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        /* Touch Optimization */
+        input, textarea, select, button {
+            touch-action: manipulation;
+        }
+
+        /* Responsive Design untuk Mobile Menu - TETAP SAMA SEPERTI ASLI */
+        @media (max-width: 768px) {
+            .nav-menu {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 80px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding-top: 2rem;
+                transition: left 0.3s ease;
+                border-top: 1px solid rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-menu .nav-link {
+                color: #2c3e50;
+                text-shadow: none;
+                font-size: 1.2rem;
+                padding: 1rem 0;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+        }
+
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header - TETAP SAMA SEPERTI ASLI -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo-container">
+                <a href="Beranda.html" class="logo"><img src="Image/Sman2.png" width="50" height="50" alt="Logo SMAN 2"></a>
+                <a href="Beranda.html" class="logo"><img src="Image/MPK2.png" width="55" height="51" alt="Logo MPK"></a>
+            </div>
+            <nav> 
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="Beranda.html" class="nav-link">Beranda</a></li>
+                    <li><a href="Tentang Kami.html" class="nav-link">Tentang Kami</a></li>
+                    <li><a href="Informasi.html" class="nav-link">Informasi</a></li>
+                    <li><a href="kritik.html" class="nav-link">Kritik</a></li>
+                    <li><a href="admin.html" class="nav-link">Admin</a></li>
+                </ul>
+            </nav>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu">☰</button>
+        </div>
+    </header>
+    
+    <!-- Page Header - DENGAN RESPONSIVE IMPROVEMENTS -->
+    <div class="page-header">
+        <h1 class="page-title">Form Aspirasi FORKSA</h1>
+        <ul class="breadcrumb">
+            <li><a href="Beranda.html">Beranda</a></li>
+            <li><a href="Tentang Kami.html">Tentang Kami</a></li>
+            <li><a href="Forksa.html">FORKSA</a></li>
+            <li>Form Aspirasi</li>
+        </ul>
+    </div>
+
+    <!-- Form Aspirasi Section - DENGAN RESPONSIVE IMPROVEMENTS -->
+    <section class="section">
+        <h2 class="section-title">Sampaikan Aspirasi Anda</h2>
+        
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Langkah 1 dari 3</div>
+        </div>
+        
+        <!-- Step Indicator - DENGAN RESPONSIVE IMPROVEMENTS -->
+        <div class="form-steps">
+            <div class="step active" id="step1">
+                <div class="step-number">1</div>
+                <div class="step-label">Pilih Peran</div>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-number">2</div>
+                <div class="step-label">Data Diri</div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-number">3</div>
+                <div class="step-label">Isi Aspirasi</div>
+            </div>
+        </div>
+        
+        <div class="aspiration-form">
+            <form id="aspirationForm">
+                <!-- Step 1: Role Selection -->
+                <div class="form-step active" id="step1Form">
+                    <h3 style="color: #2c3e50; margin-bottom: 1.5rem; font-size: 1.2rem;">Pilih Peran Anda</h3>
+                    <p style="color: #666; margin-bottom: 1.5rem;">Pilih apakah Anda mengirim aspirasi sebagai individu atau perwakilan organisasi</p>
+                    
+                    <div class="selection-cards">
+                        <div class="selection-card" data-role="siswa-guru" id="roleSiswa" tabindex="0" role="button">
+                            <div class="selection-icon">👤</div>
+                            <h3>Siswa/Guru</h3>
+                            <p>Mengirim aspirasi sebagai individu</p>
+                        </div>
+                        
+                        <div class="selection-card" data-role="organisasi" id="roleOrganisasi" tabindex="0" role="button">
+                            <div class="selection-icon">👥</div>
+                            <h3>Perwakilan Organisasi</h3>
+                            <p>Mengirim aspirasi atas nama organisasi</p>
+                        </div>
+                    </div>
+                    
+                    <input type="hidden" id="role" name="role" required>
+                    
+                    <div class="form-navigation">
+                        <button type="button" class="nav-btn btn-next" id="nextStep1" aria-label="Lanjut ke langkah berikutnya">
+                            Lanjut <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Personal Data -->
+                <div class="form-step" id="step2Form">
+                    <h3 style="color: #2c3e50; margin-bottom: 1.5rem; font-size: 1.2rem;">Data Diri</h3>
+                    <p style="color: #666; margin-bottom: 1.5rem;">Masukkan informasi pribadi Anda</p>
+                    
+                    <div class="form-group">
+                        <label for="nama">Nama Lengkap *</label>
+                        <input type="text" id="nama" name="nama" 
+                               aria-label="Nama Lengkap"
+                               aria-required="true"
+                               placeholder="Masukkan nama lengkap Anda" 
+                               autocomplete="name"
+                               required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Pilih Kelas/Jabatan *</label>
+                        <div class="selection-cards">
+                            <div class="selection-card" data-kelas="X" id="kelasX" tabindex="0" role="button">
+                                <div class="selection-icon">10</div>
+                                <h3>Kelas X</h3>
+                                <p>Siswa Kelas 10</p>
+                            </div>
+                            <div class="selection-card" data-kelas="XI" id="kelasXI" tabindex="0" role="button">
+                                <div class="selection-icon">11</div>
+                                <h3>Kelas XI</h3>
+                                <p>Siswa Kelas 11</p>
+                            </div>
+                            <div class="selection-card" data-kelas="XII" id="kelasXII" tabindex="0" role="button">
+                                <div class="selection-icon">12</div>
+                                <h3>Kelas XII</h3>
+                                <p>Siswa Kelas 12</p>
+                            </div>
+                            <div class="selection-card" data-kelas="Guru/Karyawan" id="kelasGuru" tabindex="0" role="button">
+                                <div class="selection-icon">👨‍🏫</div>
+                                <h3>Guru/Karyawan</h3>
+                            </div>
+                        </div>
+                        <input type="hidden" id="kelas" name="kelas" required>
+                    </div>
+                    
+                    <!-- Organization Data (Hidden by default) -->
+                    <div class="form-group" id="orgDataGroup" style="display: none;">
+                        <label for="nama_organisasi">Nama Organisasi *</label>
+                        <input type="text" id="nama_organisasi" name="nama_organisasi" 
+                               aria-label="Nama Organisasi"
+                               placeholder="Masukkan nama organisasi"
+                               autocomplete="off">
+                    </div>
+                    
+                    <div class="form-navigation">
+                        <button type="button" class="nav-btn btn-prev" id="prevStep2" aria-label="Kembali ke langkah sebelumnya">
+                            <i class="fas fa-arrow-left"></i> Kembali
+                        </button>
+                        <button type="button" class="nav-btn btn-next" id="nextStep2" aria-label="Lanjut ke langkah berikutnya">
+                            Lanjut <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Aspiration Content -->
+                <div class="form-step" id="step3Form">
+                    <h3 style="color: #2c3e50; margin-bottom: 1.5rem; font-size: 1.2rem;">Isi Aspirasi</h3>
+                    <p style="color: #666; margin-bottom: 1.5rem;">Sampaikan aspirasi, saran, atau kritik Anda secara detail</p>
+                    
+                    <div class="form-group">
+                        <label for="kategori">Kategori Aspirasi *</label>
+                        <select id="kategori" name="kategori" 
+                                aria-label="Kategori Aspirasi" required>
+                            <option value="">Pilih kategori</option>
+                            <option value="akademik">Akademik & Pembelajaran</option>
+                            <option value="fasilitas">Fasilitas Sekolah</option>
+                            <option value="ekstrakurikuler">Ekstrakurikuler</option>
+                            <option value="organisasi">Organisasi Sekolah</option>
+                            <option value="lingkungan">Lingkungan Sekolah</option>
+                            <option value="kesehatan">Kesehatan & Kesejahteraan</option>
+                            <option value="lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="aspirasi">Isi Aspirasi *</label>
+                        <textarea id="aspirasi" name="aspirasi" 
+                                  aria-label="Isi Aspirasi"
+                                  aria-required="true"
+                                  placeholder="Tuliskan aspirasi, saran, atau kritik Anda secara detail...
+                                  
+Contoh: Saya mengusulkan untuk...
+Harapan saya adalah...
+Permasalahan yang saya alami adalah..." 
+                                  maxlength="1000"></textarea>
+                        <div class="char-counter">
+                            <span id="charCount">0</span>/1000 karakter
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="saran">Saran Solusi (Opsional)</label>
+                        <textarea id="saran" name="saran" 
+                                  aria-label="Saran Solusi"
+                                  placeholder="Jika ada, tuliskan saran solusi yang Anda usulkan...
+                                  
+Contoh: Solusi yang bisa diterapkan adalah...
+Alternatif yang bisa dipertimbangkan...
+Langkah-langkah yang disarankan..." 
+                                  maxlength="500"></textarea>
+                        <div class="char-counter">
+                            <span id="saranCharCount">0</span>/500 karakter
+                        </div>
+                    </div>
+                    
+                    <!-- Organization Aspiration (Hidden by default) -->
+                    <div class="form-group" id="orgAspirationGroup" style="display: none;">
+                        <label for="aspirasi_organisasi">Isi Aspirasi Organisasi *</label>
+                        <textarea id="aspirasi_organisasi" name="aspirasi_organisasi" 
+                                  aria-label="Isi Aspirasi Organisasi"
+                                  placeholder="Tuliskan aspirasi, saran, atau kritik atas nama organisasi..."
+                                  maxlength="1500"></textarea>
+                        <div class="char-counter">
+                            <span id="orgCharCount">0</span>/1500 karakter
+                        </div>
+                    </div>
+                    
+                    <div class="form-navigation">
+                        <button type="button" class="nav-btn btn-prev" id="prevStep3" aria-label="Kembali ke langkah sebelumnya">
+                            <i class="fas fa-arrow-left"></i> Kembali
+                        </button>
+                        <button type="submit" class="nav-btn btn-submit" id="submitBtn" aria-label="Kirim aspirasi">
+                            Kirim Aspirasi <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Back Button -->
+        <div class="back-section">
+            <a href="Forksa.html" class="back-button">
+                <i class="fas fa-arrow-left"></i> Kembali ke Halaman FORKSA
+            </a>
+        </div>
+    </section>
+
+    <!-- Success Modal (Interactive Version) -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <!-- Confetti Elements -->
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            
+            <div class="success-checkmark">
+                <div class="check-icon">
+                    <span class="icon-line line-tip"></span>
+                    <span class="icon-line line-long"></span>
+                    <div class="icon-circle"></div>
+                    <div class="icon-fix"></div>
+                </div>
+            </div>
+            
+            <h3>✅ Berhasil Terkirim!</h3>
+            <p id="successMessage">Terima kasih telah menyampaikan aspirasi Anda. Aspirasi Anda telah berhasil dicatat dan akan segera kami proses.</p>
+            
+            <div class="modal-actions">
+                <button class="modal-btn" onclick="closeModalAndRedirect()">
+                    <i class="fas fa-home"></i> Ke Beranda
+                </button>
+                <button class="modal-btn secondary" onclick="closeModal()">
+                    <i class="fas fa-check"></i> Tutup
+                </button>
+            </div>
+            
+            <p style="font-size: 0.85rem; margin-top: 1rem; color: #95a5a6;">
+                <i class="fas fa-clock"></i> Tim FORKSA akan merespon dalam 3-5 hari kerja
+            </p>
+        </div>
+    </div>
+
+    <!-- Error Modal Container -->
+    <div id="errorModalContainer"></div>
+
+    <!-- Footer - TETAP SAMA SEPERTI ASLI -->
+    <footer class="footer">
+        <div class="footer-bottom">
+            <button onclick="document.location='https://www.instagram.com/mpksmadapwt/'">@mpksmadapwt</button>
+        </div>
+    </footer>
+
+    <!-- Firebase Configuration - TETAP SAMA -->
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVFjyWukHa8joBjlS9eKRP3Grq-fVFCkk",
+            authDomain: "mpk-smada.firebaseapp.com",
+            projectId: "mpk-smada",
+            storageBucket: "mpk-smada.firebasestorage.app",
+            messagingSenderId: "678684148175",
+            appId: "1:678684148175:web:9af24d801ddb24011a52ba",
+            measurementId: "G-GTPYYMJQGV"
+        };
+        
+        // Initialize Firebase dengan error handling
+        let db;
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.firestore();
+            console.log("Firebase initialized successfully");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            showError("Terjadi kesalahan dalam menginisialisasi sistem. Silakan refresh halaman.");
+        }
+    </script>
+
+    <script>
+        // ========== UTILITY FUNCTIONS ==========
+        
+        /**
+         * Sanitize input untuk mencegah XSS
+         */
+        function sanitizeInput(input) {
+            if (!input) return '';
+            return input
+                .trim()
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#x27;')
+                .replace(/\n/g, '<br>');
+        }
+        
+        /**
+         * Validasi nama
+         */
+        function validateName(name) {
+            const sanitized = sanitizeInput(name);
+            return sanitized.length >= 2 && sanitized.length <= 100;
+        }
+        
+        /**
+         * Tampilkan error modal dengan animasi
+         */
+        function showError(message) {
+            const errorModal = document.createElement('div');
+            errorModal.className = 'modal';
+            errorModal.innerHTML = `
+                <div class="modal-content error-modal">
+                    <div class="modal-icon" style="color: #e74c3c; animation: bounceIn 0.6s;">❌</div>
+                    <h3>⚠️ Terjadi Kesalahan</h3>
+                    <p>${message}</p>
+                    <div class="modal-actions">
+                        <button class="modal-btn" onclick="this.parentElement.parentElement.parentElement.remove()">
+                            <i class="fas fa-check"></i> Tutup
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('errorModalContainer').appendChild(errorModal);
+            errorModal.style.display = 'flex';
+            
+            // Auto close after 5 seconds
+            setTimeout(() => {
+                if (errorModal.parentElement) {
+                    errorModal.remove();
+                }
+            }, 5000);
+        }
+        
+        /**
+         * Show toast notification
+         */
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${type === 'success' ? '#27ae60' : '#3498db'};
+                color: white;
+                padding: 12px 24px;
+                border-radius: 30px;
+                font-size: 14px;
+                z-index: 3000;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                animation: slideUp 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            `;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+                ${message}
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        /**
+         * Auto-save draft
+         */
+        let autoSaveInterval;
+        const formFields = ['nama', 'aspirasi', 'saran', 'kategori', 'nama_organisasi', 'aspirasi_organisasi'];
+        
+        function startAutoSave() {
+            autoSaveInterval = setInterval(() => {
+                const formData = {};
+                formFields.forEach(field => {
+                    const element = document.getElementById(field);
+                    if (element) formData[field] = element.value;
+                });
+                formData['currentStep'] = currentStep;
+                formData['role'] = document.getElementById('role').value;
+                formData['kelas'] = document.getElementById('kelas').value;
+                
+                localStorage.setItem('aspirationDraft', JSON.stringify(formData));
+                showToast('Draft tersimpan', 'info');
+            }, 30000);
+        }
+        
+        function loadDraft() {
+            const draft = localStorage.getItem('aspirationDraft');
+            if (draft) {
+                const formData = JSON.parse(draft);
+                
+                if (confirm('Ada data yang belum tersimpan dari sesi sebelumnya. Mau melanjutkan?')) {
+                    // Load data ke form
+                    Object.keys(formData).forEach(key => {
+                        const element = document.getElementById(key);
+                        if (element && formData[key]) {
+                            element.value = formData[key];
+                            
+                            // Trigger input event untuk update character counter
+                            if (element.tagName === 'TEXTAREA' || element.tagName === 'INPUT') {
+                                element.dispatchEvent(new Event('input'));
+                            }
+                        }
+                    });
+                    
+                    // Load role selection
+                    if (formData.role) {
+                        const roleCard = document.querySelector(`.selection-card[data-role="${formData.role}"]`);
+                        if (roleCard) {
+                            roleCard.click();
+                        }
+                    }
+                    
+                    // Load class selection
+                    if (formData.kelas) {
+                        const classCard = document.querySelector(`.selection-card[data-kelas="${formData.kelas}"]`);
+                        if (classCard) {
+                            classCard.click();
+                        }
+                    }
+                    
+                    // Load step
+                    if (formData.currentStep) {
+                        showStep(formData.currentStep);
+                    }
+                    
+                    showToast('Draft berhasil dimuat', 'success');
+                } else {
+                    // Clear draft if user doesn't want to continue
+                    clearDraft();
+                }
+            }
+        }
+        
+        /**
+         * Clear draft data
+         */
+        function clearDraft() {
+            localStorage.removeItem('aspirationDraft');
+            if (autoSaveInterval) {
+                clearInterval(autoSaveInterval);
+            }
+        }
+        
+        // ========== MAIN APPLICATION CODE ==========
+        
+        // Mobile menu toggle - TETAP SAMA SEPERTI ASLI
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
+
+        mobileMenuToggle.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                navMenu.classList.remove('active');
+            });
+        });
+
+        // Header background on scroll
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Multi-step form functionality
+        let currentStep = 1;
+        const totalSteps = 3;
+        
+        // Update progress bar
+        function updateProgress() {
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const percentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            
+            progressFill.style.width = `${percentage}%`;
+            progressText.textContent = `Langkah ${currentStep} dari ${totalSteps}`;
+            
+            // Update step indicators
+            document.querySelectorAll('.step').forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index + 1 < currentStep) {
+                    step.classList.add('completed');
+                } else if (index + 1 === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+        }
+        
+        // Show step with animation
+        function showStep(step) {
+            document.querySelectorAll('.form-step').forEach(formStep => {
+                formStep.classList.remove('active');
+            });
+            
+            const nextStep = document.getElementById(`step${step}Form`);
+            nextStep.classList.add('active');
+            currentStep = step;
+            updateProgress();
+            
+            // Scroll to top of form
+            nextStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Auto-save current step
+            const formData = JSON.parse(localStorage.getItem('aspirationDraft') || '{}');
+            formData.currentStep = step;
+            localStorage.setItem('aspirationDraft', JSON.stringify(formData));
+        }
+        
+        // Next step buttons
+        document.getElementById('nextStep1').addEventListener('click', function() {
+            const role = document.getElementById('role').value;
+            if (!role) {
+                showError('Silakan pilih peran Anda terlebih dahulu');
+                return;
+            }
+            showStep(2);
+        });
+        
+        document.getElementById('nextStep2').addEventListener('click', function() {
+            const nama = document.getElementById('nama').value;
+            const kelas = document.getElementById('kelas').value;
+            
+            if (!nama.trim()) {
+                showError('Silakan isi nama lengkap Anda');
+                document.getElementById('nama').focus();
+                return;
+            }
+            
+            if (!validateName(nama)) {
+                showError('Nama harus antara 2-100 karakter');
+                document.getElementById('nama').focus();
+                return;
+            }
+            
+            if (!kelas) {
+                showError('Silakan pilih kelas/jabatan Anda');
+                return;
+            }
+            
+            // If organization role, check organization name
+            if (document.getElementById('role').value === 'organisasi') {
+                const orgName = document.getElementById('nama_organisasi').value;
+                if (!orgName.trim()) {
+                    showError('Silakan isi nama organisasi');
+                    document.getElementById('nama_organisasi').focus();
+                    return;
+                }
+                
+                if (!validateName(orgName)) {
+                    showError('Nama organisasi harus antara 2-100 karakter');
+                    document.getElementById('nama_organisasi').focus();
+                    return;
+                }
+            }
+            
+            showStep(3);
+        });
+        
+        // Previous step buttons
+        document.getElementById('prevStep2').addEventListener('click', function() {
+            showStep(1);
+        });
+        
+        document.getElementById('prevStep3').addEventListener('click', function() {
+            showStep(2);
+        });
+        
+        // Role Selection
+        const roleCards = document.querySelectorAll('.selection-card[data-role]');
+        const roleInput = document.getElementById('role');
+        
+        roleCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove selected class from all role cards
+                roleCards.forEach(c => c.classList.remove('selected'));
+                
+                // Add selected class to clicked card
+                this.classList.add('selected');
+                
+                // Set role value
+                const role = this.getAttribute('data-role');
+                roleInput.value = role;
+                
+                // Show/hide organization fields
+                const orgDataGroup = document.getElementById('orgDataGroup');
+                const orgAspirationGroup = document.getElementById('orgAspirationGroup');
+                
+                if (role === 'organisasi') {
+                    orgDataGroup.style.display = 'block';
+                    orgAspirationGroup.style.display = 'block';
+                    document.getElementById('nama_organisasi').required = true;
+                    document.getElementById('aspirasi_organisasi').required = true;
+                } else {
+                    orgDataGroup.style.display = 'none';
+                    orgAspirationGroup.style.display = 'none';
+                    document.getElementById('nama_organisasi').required = false;
+                    document.getElementById('aspirasi_organisasi').required = false;
+                }
+                
+                // Auto-save
+                const formData = JSON.parse(localStorage.getItem('aspirationDraft') || '{}');
+                formData.role = role;
+                localStorage.setItem('aspirationDraft', JSON.stringify(formData));
+            });
+            
+            // Keyboard accessibility
+            card.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
+        
+        // Class Selection
+        const classCards = document.querySelectorAll('.selection-card[data-kelas]');
+        const classInput = document.getElementById('kelas');
+        
+        classCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove selected class from all class cards
+                classCards.forEach(c => c.classList.remove('selected'));
+                
+                // Add selected class to clicked card
+                this.classList.add('selected');
+                
+                // Set class value
+                const kelas = this.getAttribute('data-kelas');
+                classInput.value = kelas;
+                
+                // Auto-save
+                const formData = JSON.parse(localStorage.getItem('aspirationDraft') || '{}');
+                formData.kelas = kelas;
+                localStorage.setItem('aspirationDraft', JSON.stringify(formData));
+            });
+            
+            // Keyboard accessibility
+            card.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
+        
+        // Character counters
+        const aspirasiTextarea = document.getElementById('aspirasi');
+        const saranTextarea = document.getElementById('saran');
+        const orgAspirasiTextarea = document.getElementById('aspirasi_organisasi');
+        const charCount = document.getElementById('charCount');
+        const saranCharCount = document.getElementById('saranCharCount');
+        const orgCharCount = document.getElementById('orgCharCount');
+        
+        function updateCharCounter(element, counter, maxLength) {
+            const length = element.value.length;
+            counter.textContent = length;
+            
+            // Visual feedback when approaching limit
+            if (length > maxLength * 0.8) {
+                counter.style.color = '#e74c3c';
+            } else {
+                counter.style.color = '#666';
+            }
+        }
+        
+        aspirasiTextarea.addEventListener('input', function() {
+            updateCharCounter(this, charCount, 1000);
+            
+            // Auto-save
+            const formData = JSON.parse(localStorage.getItem('aspirationDraft') || '{}');
+            formData.aspirasi = this.value;
+            localStorage.setItem('aspirationDraft', JSON.stringify(formData));
+        });
+        
+        saranTextarea.addEventListener('input', function() {
+            updateCharCounter(this, saranCharCount, 500);
+            
+            // Auto-save
+            const formData = JSON.parse(localStorage.getItem('aspirationDraft') || '{}');
+            formData.saran = this.value;
+            localStorage.setItem('aspirationDraft', JSON.stringify(formData));
+        });
+        
+        if (orgAspirasiTextarea) {
+            orgAspirasiTextarea.addEventListener('input', function() {
+                updateCharCounter(this, orgCharCount, 1500);
+                
+                // Auto-save
+                const formData = JSON.parse(localStorage.getItem('aspirationDraft') || '{}');
+                formData.aspirasi_organisasi = this.value;
+                localStorage.setItem('aspirationDraft', JSON.stringify(formData));
+            });
+        }
+        
+        // Auto-save untuk input lainnya
+        document.getElementById('nama').addEventListener('input', function() {
+            const formData = JSON.parse(localStorage.getItem('aspirationDraft') || '{}');
+            formData.nama = this.value;
+            localStorage.setItem('aspirationDraft', JSON.stringify(formData));
+        });
+        
+        document.getElementById('nama_organisasi').addEventListener('input', function() {
+            const formData = JSON.parse(localStorage.getItem('aspirationDraft') || '{}');
+            formData.nama_organisasi = this.value;
+            localStorage.setItem('aspirationDraft', JSON.stringify(formData));
+        });
+        
+        document.getElementById('kategori').addEventListener('change', function() {
+            const formData = JSON.parse(localStorage.getItem('aspirationDraft') || '{}');
+            formData.kategori = this.value;
+            localStorage.setItem('aspirationDraft', JSON.stringify(formData));
+        });
+        
+        // Form submission
+        const aspirationForm = document.getElementById('aspirationForm');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        aspirationForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Konfirmasi sebelum submit
+            if (!confirm('Apakah Anda yakin ingin mengirim aspirasi ini?')) {
+                return;
+            }
+            
+            // Validate all required fields
+            const requiredFields = [
+                {id: 'role', message: 'Silakan pilih peran Anda'},
+                {id: 'nama', message: 'Silakan isi nama lengkap Anda'},
+                {id: 'kelas', message: 'Silakan pilih kelas/jabatan Anda'},
+                {id: 'kategori', message: 'Silakan pilih kategori aspirasi'},
+                {id: 'aspirasi', message: 'Silakan isi aspirasi Anda'}
+            ];
+            
+            for (const field of requiredFields) {
+                const element = document.getElementById(field.id);
+                if (!element.value || !element.value.trim()) {
+                    showError(field.message);
+                    element.focus();
+                    return;
+                }
+            }
+            
+            // Validasi nama
+            if (!validateName(document.getElementById('nama').value)) {
+                showError('Nama harus antara 2-100 karakter');
+                document.getElementById('nama').focus();
+                return;
+            }
+            
+            // Validasi aspirasi minimal panjang
+            const aspirasiValue = document.getElementById('aspirasi').value.trim();
+            if (aspirasiValue.length < 10) {
+                showError('Aspirasi minimal 10 karakter');
+                document.getElementById('aspirasi').focus();
+                return;
+            }
+            
+            // If organization role, validate organization fields
+            if (roleInput.value === 'organisasi') {
+                const orgFields = [
+                    {id: 'nama_organisasi', message: 'Silakan isi nama organisasi'},
+                    {id: 'aspirasi_organisasi', message: 'Silakan isi aspirasi organisasi'}
+                ];
+                
+                for (const field of orgFields) {
+                    const element = document.getElementById(field.id);
+                    if (!element.value || !element.value.trim()) {
+                        showError(field.message);
+                        element.focus();
+                        return;
+                    }
+                }
+                
+                // Validasi nama organisasi
+                if (!validateName(document.getElementById('nama_organisasi').value)) {
+                    showError('Nama organisasi harus antara 2-100 karakter');
+                    document.getElementById('nama_organisasi').focus();
+                    return;
+                }
+                
+                // Validasi aspirasi organisasi
+                const orgAspirasiValue = document.getElementById('aspirasi_organisasi').value.trim();
+                if (orgAspirasiValue.length < 20) {
+                    showError('Aspirasi organisasi minimal 20 karakter');
+                    document.getElementById('aspirasi_organisasi').focus();
+                    return;
+                }
+            }
+            
+            // Disable submit button and show loading
+            submitBtn.disabled = true;
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="loading-spinner"></span> Mengirim...';
+            
+            try {
+                // Get form data dengan sanitasi
+                const formData = {
+                    role: roleInput.value,
+                    nama: sanitizeInput(document.getElementById('nama').value),
+                    kelas: classInput.value,
+                    kategori: document.getElementById('kategori').value,
+                    aspirasi: sanitizeInput(document.getElementById('aspirasi').value),
+                    saran: sanitizeInput(document.getElementById('saran').value),
+                    status: 'pending',
+                    tanggal: new Date().toISOString(),
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                // Add organization data if applicable
+                if (roleInput.value === 'organisasi') {
+                    formData.nama_organisasi = sanitizeInput(document.getElementById('nama_organisasi').value);
+                    formData.aspirasi_organisasi = sanitizeInput(document.getElementById('aspirasi_organisasi').value);
+                }
+                
+                // Check if Firebase is initialized
+                if (!db) {
+                    throw new Error('Database tidak tersedia. Silakan refresh halaman.');
+                }
+                
+                // Save to Firestore
+                await db.collection('aspirations').add(formData);
+                
+                // Update success message based on role
+                const successMessage = document.getElementById('successMessage');
+                if (roleInput.value === 'organisasi') {
+                    successMessage.textContent = 'Terima kasih telah menyampaikan aspirasi atas nama organisasi. Aspirasi telah berhasil dicatat dan akan segera kami proses bersama dengan organisasi terkait.';
+                } else {
+                    successMessage.textContent = 'Terima kasih telah menyampaikan aspirasi Anda. Aspirasi telah berhasil dicatat dan akan segera kami proses.';
+                }
+                
+                // Show success modal with animation
+                const modal = document.getElementById('successModal');
+                modal.style.display = 'flex';
+                
+                // Clear draft data
+                clearDraft();
+                
+                // Reset form after 2 seconds (but keep modal open)
+                setTimeout(() => {
+                    aspirationForm.reset();
+                    roleCards.forEach(card => card.classList.remove('selected'));
+                    classCards.forEach(card => card.classList.remove('selected'));
+                    document.getElementById('orgDataGroup').style.display = 'none';
+                    document.getElementById('orgAspirationGroup').style.display = 'none';
+                    roleInput.value = '';
+                    classInput.value = '';
+                    charCount.textContent = '0';
+                    saranCharCount.textContent = '0';
+                    if (orgCharCount) orgCharCount.textContent = '0';
+                    showStep(1);
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error submitting aspiration:', error);
+                showError('Maaf, terjadi kesalahan saat mengirim aspirasi. Silakan coba lagi atau hubungi admin.');
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+        
+        // Close modal function with animation
+        function closeModal() {
+            const modal = document.getElementById('successModal');
+            modal.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => {
+                modal.style.display = 'none';
+                modal.style.animation = ''; // Reset animation
+            }, 300);
+        }
+        
+        // Close modal and redirect
+        function closeModalAndRedirect() {
+            closeModal();
+            setTimeout(() => {
+                window.location.href = 'Beranda.html';
+            }, 300);
+        }
+        
+        // Click outside modal to close
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('successModal');
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // Initialize progress bar
+        updateProgress();
+        
+        // Add touch effects to cards
+        document.querySelectorAll('.selection-card').forEach(card => {
+            card.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            
+            card.addEventListener('touchend', function() {
+                this.style.transform = '';
+            });
+            
+            card.addEventListener('touchcancel', function() {
+                this.style.transform = '';
+            });
+        });
+        
+        // Start auto-save and load draft
+        startAutoSave();
+        loadDraft();
+        
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from {
+                    opacity: 1;
+                }
+                to {
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

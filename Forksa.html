@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORKSA - MPK SMADA</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        /* Header & Navigation */
+        .header {
+            background: rgb(110, 1, 1);
+            backdrop-filter: blur(20px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            display: flex;
+            transition: all 0.3s ease;
+        }
+
+        .logo img {
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+        }
+
+        .header.scrolled .logo {
+            color: #2c3e50;
+            text-shadow: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .header.scrolled .nav-link {
+            color: #2c3e50;
+            text-shadow: none;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #ffffff, #e74c3c);
+            transition: width 0.3s ease;
+        }
+
+        .header.scrolled .nav-link::after {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-link:hover {
+            color: #e74c3c;
+            transform: translateY(-2px);
+        }
+
+        .header.scrolled .nav-link:hover {
+            color: #3498db;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled .mobile-menu-toggle {
+            color: #dd463c;
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: 120px 0 60px;
+            text-align: center;
+            background: linear-gradient(135deg, #5f010d, #781f19);
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        .breadcrumb li {
+            margin: 0 0.5rem;
+        }
+        
+        .breadcrumb li:not(:last-child)::after {
+            content: "›";
+            margin-left: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        /* Sections */
+        .section {
+            padding: 5rem 0;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border-radius: 2px;
+        }
+
+        /* About Section */
+        .about {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .about-text h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .about-text p {
+            margin-bottom: 1rem;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .about-image {
+            height: 300px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .about-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* CTA Button Section - Improved */
+        .cta-section {
+            text-align: center;
+            margin: 4rem 0;
+            position: relative;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.05), rgba(52, 152, 219, 0.05));
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(231, 76, 60, 0.1) 0%, transparent 70%);
+            animation: pulse 4s infinite ease-in-out;
+            z-index: 0;
+        }
+
+        .cta-container {
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .cta-subtitle {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            color: #666;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 1.2rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #c0392b, #e74c3c);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: -1;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(231, 76, 60, 0.6);
+        }
+
+        .cta-button:hover::before {
+            opacity: 1;
+        }
+
+        .cta-button:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .cta-button i {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .cta-button:hover i {
+            transform: translateX(5px);
+        }
+
+        /* Floating Elements */
+        .floating-element {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: float 6s infinite ease-in-out;
+            z-index: 1;
+        }
+
+        .floating-element:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-element:nth-child(2) {
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .floating-element:nth-child(3) {
+            bottom: 20%;
+            left: 15%;
+            animation-delay: 4s;
+        }
+
+        .floating-element .icon {
+            font-size: 1.5rem;
+            color: #e74c3c;
+        }
+
+        /* Arrow pointing to button */
+        .arrow-pointer {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            animation: bounce 2s infinite;
+            z-index: 2;
+        }
+
+        .arrow-pointer::before {
+            content: "↓";
+            font-size: 2rem;
+            color: #e74c3c;
+        }
+
+        /* Timeline Section */
+        .timeline {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .timeline-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #3498db, #e74c3c);
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 80px;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: 18px;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            background: #e74c3c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .timeline-date {
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-progress {
+            background: #cce7ff;
+            color: #004085;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        /* Gallery Section */
+        .gallery {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 1rem;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover .gallery-caption {
+            transform: translateY(0);
+        }
+
+        /* Info Cards */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .info-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #e74c3c;
+        }
+
+        .info-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .info-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .info-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgb(110, 1, 1);
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: #3498db;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: #bdc3c7;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .footer-section a:hover {
+            color: #3498db;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #34495e;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            color: #bdc3c7;
+        }
+
+        .footer-bottom button {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .footer-bottom button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            33% {
+                transform: translateY(-20px) rotate(120deg);
+            }
+            66% {
+                transform: translateY(10px) rotate(240deg);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0) translateX(-50%);
+            }
+            40% {
+                transform: translateY(-10px) translateX(-50%);
+            }
+            60% {
+                transform: translateY(-5px) translateX(-50%);
+            }
+        }
+
+        .about,
+        .gallery,
+        .info-card,
+        .timeline {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-menu {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 80px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding-top: 2rem;
+                transition: left 0.3s ease;
+                border-top: 1px solid rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-menu .nav-link {
+                color: #2c3e50;
+                text-shadow: none;
+                font-size: 1.2rem;
+                padding: 1rem 0;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+
+            .section {
+                padding: 3rem 0;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .timeline-container::before {
+                left: 20px;
+            }
+            
+            .timeline-item {
+                padding-left: 60px;
+            }
+            
+            .timeline-icon {
+                left: 8px;
+            }
+            
+            .logo img {
+                width: 40px;
+                height: 40px;
+            }
+            
+            /* Responsive adjustments for CTA section */
+            .cta-section {
+                padding: 1.5rem;
+                margin: 3rem 0;
+            }
+            
+            .cta-title {
+                font-size: 1.3rem;
+            }
+            
+            .cta-button {
+                padding: 1rem 2rem;
+                font-size: 1.1rem;
+            }
+            
+            .floating-element {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .floating-element .icon {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Additional adjustments for very small screens */
+        @media (max-width: 480px) {
+            .nav-container {
+                padding: 0.8rem 1rem;
+            }
+            
+            .logo img {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .about, .gallery, .timeline {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo-container">
+                <a href="Beranda.html" class="logo"><img src="Image/Sman2.png" width="50" height="50" alt="Logo SMAN 2"></a>
+                <a href="Beranda.html" class="logo"><img src="Image/MPK2.png" width="55" height="51" alt="Logo MPK"></a>
+            </div>
+            <nav> 
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="Beranda.html" class="nav-link">Beranda</a></li>
+                    <li><a href="Tentang Kami.html" class="nav-link">Tentang Kami</a></li>
+                    <li><a href="Informasi.html" class="nav-link">Informasi</a></li>
+                    <li><a href="Pengumuman.html" class="nav-link">Pengumuman</a></li>
+                    <li><a href="Reorganisasi.html" class="nav-link">Reorganisasi</a></li>
+                    <li><a href="kritik.html" class="nav-link">Kritik</a></li>
+                    <li><a href="admin.html" class="nav-link">Admin</a></li>
+                </ul>
+            </nav>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle">☰</button>
+        </div>
+    </header>
+    
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">FORKSA</h1>
+        <ul class="breadcrumb">
+            <li><a href="Beranda.html">Beranda</a></li>
+            <li><a href="Tentang Kami.html">Tentang Kami</a></li>
+            <li>FORKSA</li>
+        </ul>
+    </div>
+
+    <!-- About FORKSA Section -->
+    <section class="section">
+        <div class="about">
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>Apa itu FORKSA?</h3>
+                    <p>FORKSA (Forum Komunikasi Sekolah) adalah salah satu program kerja utama MPK SMAN 2 Purwokerto yang berfungsi sebagai jembatan komunikasi antara seluruh warga sekolah dengan pihak sekolah yang dilaksanakan 1 kali setiap tahunnya.</p>
+                    <p>Program ini bertujuan untuk menampung, menyalurkan, dan menyampaikan aspirasi, saran, serta kritik konstruktif dari siswa kepada pihak sekolah guna meningkatkan kualitas pendidikan dan lingkungan sekolah.</p>
+                    <p>FORKSA menjadi wadah yang sangat penting dalam mewujudkan sekolah yang demokratis dan responsif terhadap kebutuhan seluruh warga sekolah.</p>
+                </div>
+                <div class="about-image">
+                    <img src="Image/FORKSA.jpg" alt="Ilustrasi FORKSA">
+                </div>
+            </div>
+        </div>
+        
+        <!-- CTA Button untuk Form Aspirasi - Improved -->
+        <div class="cta-section">
+            <!-- Floating Elements -->
+            <div class="floating-element">
+                <div class="icon">💬</div>
+            </div>
+            <div class="floating-element">
+                <div class="icon">📢</div>
+            </div>
+            <div class="floating-element">
+                <div class="icon">✨</div>
+            </div>
+            
+            <div class="cta-container">
+                <h3 class="cta-title">Suara Anda Penting Bagi Kami!</h3>
+                <p class="cta-subtitle">Sampaikan aspirasi, saran, dan kritik konstruktif Anda untuk membantu meningkatkan kualitas sekolah kita bersama.</p>
+                <a href="Form-Aspirasi.html" class="cta-button">
+                    <span>Isi Form Aspirasi Sekarang</span>
+                    <i>→</i>
+                </a>
+            </div>
+            
+            <!-- Arrow pointing to button -->
+            <div class="arrow-pointer"></div>
+        </div>
+    </section>
+
+    <!-- Timeline Progres Section -->
+    <section class="section">
+        <h2 class="section-title">Timeline FORKSA</h2>
+        <div class="timeline">
+            <div class="timeline-container" id="timelineContainer">
+                <div class="timeline-item">
+                    <div class="timeline-icon">1</div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">15 September 2026</div>
+                        <div class="status-badge status-completed">Selesai</div>
+                        <h4 class="timeline-title">Pembukaan Form Aspirasi FORKSA</h4>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-icon">2</div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">28 September 2026</div>
+                        <div class="status-badge status-progress">Dalam Proses</div>
+                        <h4 class="timeline-title">Pengisian Form Aspirasi</h4>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-icon">3</div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">5 Oktober 2026</div>
+                        <div class="status-badge status-pending">Menunggu</div>
+                        <h4 class="timeline-title">Penutupan Form Aspirasi</h4>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-icon">4</div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">12 Oktober 2023</div>
+                        <div class="status-badge status-completed">Selesai</div>
+                        <h4 class="timeline-title">Sidang FORKSA</h4>
+                        <p><strong>Kategori:</strong> Fasilitas Sekolah</p>
+                        <p><strong>Status:</strong> Sudah ditindaklanjuti dengan penambahan koleksi buku baru dan perbaikan AC</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Info Cards Section -->
+    <section class="section">
+        <h2 class="section-title">Tujuan dan Manfaat FORKSA</h2>
+        <div class="info-cards">
+            <div class="info-card">
+                <h3>Menciptakan Komunikasi yang Efektif</h3>
+                <p>FORKSA memfasilitasi komunikasi dua arah antara siswa dengan pihak sekolah, memastikan setiap suara didengar dan dipertimbangkan.</p>
+            </div>
+            <div class="info-card">
+                <h3>Meningkatkan Kualitas Pendidikan</h3>
+                <p>Dengan menampung aspirasi siswa tentang proses pembelajaran, FORKSA membantu meningkatkan kualitas pendidikan di sekolah.</p>
+            </div>
+            <div class="info-card">
+                <h3>Membangun Sekolah yang Demokratis</h3>
+                <p>FORKSA menjadi bukti nyata penerapan nilai-nilai demokrasi di lingkungan sekolah, di mana setiap siswa memiliki hak untuk bersuara.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="section">
+        <h2 class="section-title">Dokumentasi FORKSA</h2>
+        <div class="gallery">
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="Image/FORKSA.jpg" alt="Sesi Aspirasi FORKSA">
+                    <div class="gallery-caption">
+                        <h4>Sesi Penampungan Aspirasi</h4>
+                        <p>Anggota MPK mendengarkan aspirasi dari siswa</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="Image/FORKSA2.jpg" alt="Presentasi Hasil FORKSA">
+                    <div class="gallery-caption">
+                        <h4>Presentasi Hasil FORKSA</h4>
+                        <p>Menyampaikan hasil aspirasi kepada pihak sekolah</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="Image/FORKSA3.jpg" alt="Diskusi dengan Pihak Sekolah">
+                    <div class="gallery-caption">
+                        <h4>Diskusi dengan Pihak Sekolah</h4>
+                        <p>Berkolaborasi mencari solusi terbaik</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="Image/FORKSA4.jpg" alt="Implementasi Hasil FORKSA">
+                    <div class="gallery-caption">
+                        <h4>Implementasi Hasil FORKSA</h4>
+                        <p>Perubahan positif berdasarkan aspirasi siswa</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <!-- Konten footer dapat ditambahkan di sini -->
+        </div>
+        <div class="footer-bottom">
+            <button onclick="document.location='https://www.instagram.com/mpksmadapwt/'">@mpksmadapwt</button>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
+
+        mobileMenuToggle.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                navMenu.classList.remove('active');
+            });
+        });
+
+        // Header background on scroll
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Add intersection observer for animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            // Observe elements for animation
+            document.querySelectorAll('.about, .gallery, .info-card, .timeline').forEach(element => {
+                element.style.opacity = 0;
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(element);
+            });
+        });
+    </script>
+</body>
+</html>

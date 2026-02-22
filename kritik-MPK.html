@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Kritik & Saran - MPK SMADA</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        /* Login Page Styles */
+        .login-page {
+            background: linear-gradient(135deg, #5f010d, #781f19);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo-section {
+            margin-bottom: 2rem;
+        }
+
+        .logo-section img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+
+        .logo-section h1 {
+            color: #5f010d;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-section p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #e74c3c;
+        }
+
+        .login-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .login-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c0392b;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #f5b7b1;
+            display: none;
+        }
+
+        .back-link {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #e74c3c;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-page {
+            display: none;
+        }
+
+        .admin-header {
+            background: rgb(110, 1, 1);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .admin-logo h1 {
+            font-size: 1.5rem;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Navbar Styles */
+        .admin-navbar {
+            background: #8B0000;
+            padding: 0.75rem 2rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .navbar-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .navbar-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+
+        /* Hamburger Menu */
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .hamburger-menu span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: white;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: #8B0000;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            flex-direction: column;
+            padding: 1rem 0;
+        }
+
+        .mobile-nav.active {
+            display: flex;
+        }
+
+        .mobile-nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+
+        .mobile-logout {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-top: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card.total { border-top-color: #3498db; }
+        .stat-card.siswa { border-top-color: #2ecc71; }
+        .stat-card.guru { border-top-color: #e74c3c; }
+        .stat-card.baru { border-top-color: #f39c12; }
+        .stat-card.kritik { border-top-color: #9b59b6; }
+        .stat-card.saran { border-top-color: #1abc9c; }
+        .stat-card.masukan { border-top-color: #d35400; }
+        .stat-card.lainnya { border-top-color: #95a5a6; }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Filters Section */
+        .filters-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #6e0101;
+        }
+
+        .search-group {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .search-group input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        /* Feedback Table */
+        .feedback-table {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h3 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+
+        .table-count {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-baru {
+            background: #d6eaf8;
+            color: #2874a6;
+            border: 1px solid #85c1e9;
+        }
+
+        .status-dibaca {
+            background: #d5f5e3;
+            color: #27ae60;
+            border: 1px solid #82e0aa;
+        }
+
+        .status-ditindak {
+            background: #fef9e7;
+            color: #b7950b;
+            border: 1px solid #f7dc6f;
+        }
+
+        .action-buttons-sm {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+
+        /* Loading States */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: #f8f9fa;
+        }
+
+        .feedback-detail {
+            margin-bottom: 1.5rem;
+        }
+
+        .feedback-detail label {
+            font-weight: 600;
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .feedback-detail p {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .feedback-text {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            margin-bottom: 1rem;
+        }
+
+        .login-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #e74c3c;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .realtime-indicator {
+            background: #27ae60;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Footer */
+        .footer {
+            background: rgb(110, 1, 1);
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 3rem;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            width: 100%;
+        }
+
+        .footer-bottom button {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            margin: 0.2rem;
+        }
+
+        .footer-bottom button:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 2rem 1.5rem;
+            }
+            
+            .logo-section h1 {
+                font-size: 1.5rem;
+            }
+
+            .admin-nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .admin-actions {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            /* Sembunyikan logout button di header pada mode mobile */
+            .admin-actions .btn-danger {
+                display: none;
+            }
+
+            .navbar-container {
+                display: none;
+            }
+
+            .hamburger-menu {
+                display: flex;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .search-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .action-buttons {
+                justify-content: center;
+            }
+
+            .table-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .table-container {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+            }
+
+            .action-buttons-sm {
+                flex-direction: column;
+            }
+
+            .admin-container {
+                padding: 1rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+        }
+
+        @media (min-width: 769px) {
+            /* Sembunyikan logout button di hamburger menu pada mode desktop */
+            .mobile-logout {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1.5rem 1rem;
+            }
+            
+            .admin-container {
+                padding: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .navbar-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .navbar-link {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .filters-section {
+                padding: 1rem;
+            }
+
+            .table-header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="login-page" id="loginPage">
+        <div class="login-container">
+            <div class="logo-section">
+                <img src="Image/MPK2.png" alt="Logo MPK SMADA" onerror="this.style.display='none'">
+                <h1>Admin MPK SMADA</h1>
+                <p>Panel Kritik & Saran</p>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Nama Admin</label>
+                    <input type="text" id="username" name="username" required placeholder="Masukkan nama admin">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Masukkan password">
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <span id="loginText">Masuk ke Dashboard</span>
+                    <div class="login-spinner" id="loginSpinner"></div>
+                </button>
+            </form>
+
+            <a href="Beranda.html" class="back-link">← Kembali ke Beranda</a>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div class="dashboard-page" id="dashboardPage">
+        <!-- Header -->
+        <header class="admin-header">
+            <nav class="admin-nav">
+                <div class="admin-logo">
+                    <img src="Image/MPK2.png" alt="Logo MPK" onerror="this.style.display='none'">
+                    <h1>Admin Dashboard - Kritik & Saran</h1>
+                </div>
+                <div class="admin-actions">
+                    <span id="adminWelcome">Halo, Admin!</span>
+                    <div class="realtime-indicator">
+                        <span>●</span> Real-time
+                    </div>
+                    <!-- Logout button untuk desktop -->
+                    <button class="btn btn-danger" id="desktopLogout" onclick="logout()">Logout</button>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Navbar -->
+        <nav class="admin-navbar">
+            <div class="navbar-container">
+                <a href="admin.html" class="navbar-link">
+                    Forksa
+                </a>
+                <a href="hasil-voting.html" class="navbar-link">
+                    Reorganisasi
+                </a>
+                <a href="kritik-MPK.html" class="navbar-link active">
+                    Kritik
+                </a>
+            </div>
+            
+            <!-- Hamburger Menu -->
+            <div class="hamburger-menu" id="hamburgerMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <!-- Mobile Navigation -->
+            <div class="mobile-nav" id="mobileNav">
+                <a href="admin.html" class="mobile-nav-link">
+                    <i class="fas fa-home"></i> Forksa
+                </a>
+                <a href="hasil-voting.html" class="mobile-nav-link">
+                    <i class="fas fa-chart-bar"></i> Reorganisasi
+                </a>
+                <a href="kritik-MPK.html" class="mobile-nav-link active">
+                    <i class="fas fa-comment"></i> Kritik
+                </a>
+                <!-- Logout button untuk mobile -->
+                <div class="mobile-logout">
+                    <a href="#" class="mobile-nav-link" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="admin-container">
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <div class="stat-number" id="totalFeedback">0</div>
+                    <div class="stat-label">Total Kritik & Saran</div>
+                </div>
+                <div class="stat-card siswa">
+                    <div class="stat-number" id="siswaFeedback">0</div>
+                    <div class="stat-label">Dari Siswa</div>
+                </div>
+                <div class="stat-card guru">
+                    <div class="stat-number" id="guruFeedback">0</div>
+                    <div class="stat-label">Dari Guru/Karyawan</div>
+                </div>
+                <div class="stat-card baru">
+                    <div class="stat-number" id="baruFeedback">0</div>
+                    <div class="stat-label">Belum Dibaca</div>
+                </div>
+            </div>
+
+            <!-- Additional Stats -->
+            <div class="stats-grid">
+                <div class="stat-card kritik">
+                    <div class="stat-number" id="kritikCount">0</div>
+                    <div class="stat-label">Kritik</div>
+                </div>
+                <div class="stat-card saran">
+                    <div class="stat-number" id="saranCount">0</div>
+                    <div class="stat-label">Saran</div>
+                </div>
+                <div class="stat-card masukan">
+                    <div class="stat-number" id="masukanCount">0</div>
+                    <div class="stat-label">Masukan</div>
+                </div>
+                <div class="stat-card lainnya">
+                    <div class="stat-number" id="lainnyaCount">0</div>
+                    <div class="stat-label">Lainnya</div>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="filters-section">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label for="statusFilter">Status</label>
+                        <select id="statusFilter">
+                            <option value="all">Semua Status</option>
+                            <option value="baru">Belum Dibaca</option>
+                            <option value="dibaca">Sudah Dibaca</option>
+                            <option value="ditindak">Ditindaklanjuti</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="roleFilter">Status Pengirim</label>
+                        <select id="roleFilter">
+                            <option value="all">Semua</option>
+                            <option value="Siswa">Siswa</option>
+                            <option value="Guru/Karyawan">Guru/Karyawan</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="jenisFilter">Jenis Pesan</label>
+                        <select id="jenisFilter">
+                            <option value="all">Semua Jenis</option>
+                            <option value="kritik">Kritik</option>
+                            <option value="saran">Saran</option>
+                            <option value="masukan">Masukan</option>
+                            <option value="lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="dateFilter">Tanggal</label>
+                        <input type="date" id="dateFilter">
+                    </div>
+                </div>
+                
+                <div class="search-group">
+                    <div class="filter-group" style="flex: 1;">
+                        <label for="searchInput">Pencarian</label>
+                        <input type="text" id="searchInput" placeholder="Cari nama atau isi pesan...">
+                    </div>
+                    <button class="btn btn-secondary" onclick="clearFilters()">Reset Filter</button>
+                    <button class="btn btn-primary" onclick="applyFilters()">Terapkan Filter</button>
+                    <button class="btn btn-success" onclick="exportToExcel()">
+                        📊 Export Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feedback Table -->
+            <div class="feedback-table">
+                <div class="table-header">
+                    <h3>Daftar Kritik & Saran</h3>
+                    <span id="tableCount" class="table-count">Menampilkan 0 data</span>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Nama</th>
+                                <th>Status</th>
+                                <th>Jenis</th>
+                                <th>Pesan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="feedbackTableBody">
+                            <tr>
+                                <td colspan="6" class="loading">
+                                    <div class="spinner"></div>
+                                    <p>Memuat data kritik dan saran...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="action-buttons">
+                <button class="btn btn-success" onclick="markAllAsRead()">
+                    ✅ Tandai Semua Sudah Dibaca
+                </button>
+                <button class="btn btn-primary" onclick="refreshData()">
+                    🔄 Refresh Data
+                </button>
+                <button class="btn btn-danger" onclick="deleteAllRead()">
+                    🗑️ Hapus yang Sudah Dibaca
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-bottom">
+                <button onclick="window.open('https://www.instagram.com/mpksmadapwt/', '_blank')">@mpksmadapwt</button>
+            </div>
+        </footer>
+
+        <!-- Detail Modal -->
+        <div class="modal" id="detailModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Detail Kritik & Saran</h3>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <div id="modalContent">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Configuration -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVFjyWukHa8joBjlS9eKRP3Grq-fVFCkk",
+            authDomain: "mpk-smada.firebaseapp.com",
+            projectId: "mpk-smada",
+            storageBucket: "mpk-smada.firebasestorage.app",
+            messagingSenderId: "678684148175",
+            appId: "1:678684148175:web:86fe1427dde402841a52ba",
+            measurementId: "G-EFGDPQJP2S"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+
+    <script>
+        // Global variables
+        let allFeedback = [];
+        let currentFilters = {
+            status: 'all',
+            role: 'all',
+            jenis: 'all',
+            date: '',
+            search: ''
+        };
+        let unsubscribeListener = null; // Untuk real-time listener
+
+        // Admin credentials - Sama dengan halaman admin lainnya
+        const ADMIN_USERNAME = 'sembilas';
+        const ADMIN_PASSWORD = 'cihuyyyy';
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+        });
+
+        // Check authentication status
+        function checkAuthentication() {
+            const isAuthenticated = localStorage.getItem('adminAuthenticated') === 'true';
+            const loginTime = localStorage.getItem('adminLoginTime');
+            const currentTime = new Date().getTime();
+            
+            // Check if session is still valid (8 hours)
+            const sessionDuration = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+            const isSessionValid = loginTime && (currentTime - parseInt(loginTime)) < sessionDuration;
+            
+            if (isAuthenticated && isSessionValid) {
+                showDashboard();
+            } else {
+                // Clear invalid session
+                if (!isSessionValid) {
+                    localStorage.removeItem('adminAuthenticated');
+                    localStorage.removeItem('adminName');
+                    localStorage.removeItem('adminLoginTime');
+                }
+                showLogin();
+            }
+        }
+
+        // Show login page
+        function showLogin() {
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('dashboardPage').style.display = 'none';
+            
+            // Hentikan listener saat logout
+            if (unsubscribeListener) {
+                unsubscribeListener();
+                unsubscribeListener = null;
+            }
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('dashboardPage').style.display = 'block';
+            setupRealTimeListener();
+            document.getElementById('adminWelcome').textContent = 
+                `Halo, ${localStorage.getItem('adminName') || 'Admin'}!`;
+        }
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loginText = document.getElementById('loginText');
+            const loginSpinner = document.getElementById('loginSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Show loading state
+            loginBtn.disabled = true;
+            loginText.style.display = 'none';
+            loginSpinner.style.display = 'block';
+            errorMessage.style.display = 'none';
+            
+            try {
+                // Authentication dengan nama dan password
+                if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                    // Store admin session in localStorage (persistent)
+                    localStorage.setItem('adminAuthenticated', 'true');
+                    localStorage.setItem('adminName', username);
+                    localStorage.setItem('adminLoginTime', new Date().getTime().toString());
+                    
+                    // Show dashboard
+                    showDashboard();
+                } else {
+                    throw new Error('Nama atau password salah');
+                }
+                
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.style.display = 'block';
+            } finally {
+                // Reset loading state
+                loginBtn.disabled = false;
+                loginText.style.display = 'block';
+                loginSpinner.style.display = 'none';
+            }
+        });
+
+        // Hamburger Menu Function
+        function toggleMobileMenu() {
+            const mobileNav = document.getElementById('mobileNav');
+            mobileNav.classList.toggle('active');
+            
+            const hamburger = document.getElementById('hamburgerMenu');
+            hamburger.classList.toggle('active');
+        }
+
+        // Setup real-time listener untuk Firestore
+        function setupRealTimeListener() {
+            try {
+                const tbody = document.getElementById('feedbackTableBody');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="loading">
+                            <div class="spinner"></div>
+                            <p>Menyiapkan koneksi real-time...</p>
+                        </td>
+                    </tr>
+                `;
+
+                // Hentikan listener sebelumnya jika ada
+                if (unsubscribeListener) {
+                    unsubscribeListener();
+                }
+
+                // Setup real-time listener
+                unsubscribeListener = db.collection('kritik-saran')
+                    .orderBy('timestamp', 'desc')
+                    .onSnapshot(
+                        // Success handler
+                        (snapshot) => {
+                            console.log('Real-time update diterima:', snapshot.docChanges().length, 'perubahan');
+                            
+                            allFeedback = [];
+                            snapshot.forEach((doc) => {
+                                const data = doc.data();
+                                allFeedback.push({
+                                    id: doc.id,
+                                    ...data,
+                                    // Pastikan status ada
+                                    status: data.status || 'baru',
+                                    // Format timestamp untuk display
+                                    displayDate: data.timestamp ? data.timestamp.toDate() : new Date()
+                                });
+                            });
+                            
+                            updateStats();
+                            applyFilters();
+                        },
+                        // Error handler
+                        (error) => {
+                            console.error('Error real-time listener:', error);
+                            document.getElementById('feedbackTableBody').innerHTML = `
+                                <tr>
+                                    <td colspan="6" class="empty-state">
+                                        <div>❌</div>
+                                        <p>Gagal memuat data dari server: ${error.message}</p>
+                                        <button class="btn btn-primary" onclick="setupRealTimeListener()">Coba Lagi</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                    );
+                
+            } catch (error) {
+                console.error('Error setting up real-time listener:', error);
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = allFeedback.length;
+            const siswa = allFeedback.filter(f => f.role === 'Siswa').length;
+            const guru = allFeedback.filter(f => f.role === 'Guru/Karyawan').length;
+            const baru = allFeedback.filter(f => f.status === 'baru').length;
+            const kritik = allFeedback.filter(f => f.jenis === 'kritik').length;
+            const saran = allFeedback.filter(f => f.jenis === 'saran').length;
+            const masukan = allFeedback.filter(f => f.jenis === 'masukan').length;
+            const lainnya = allFeedback.filter(f => f.jenis === 'lainnya').length;
+            
+            document.getElementById('totalFeedback').textContent = total;
+            document.getElementById('siswaFeedback').textContent = siswa;
+            document.getElementById('guruFeedback').textContent = guru;
+            document.getElementById('baruFeedback').textContent = baru;
+            document.getElementById('kritikCount').textContent = kritik;
+            document.getElementById('saranCount').textContent = saran;
+            document.getElementById('masukanCount').textContent = masukan;
+            document.getElementById('lainnyaCount').textContent = lainnya;
+        }
+
+        // Apply filters to feedback data
+        function applyFilters() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const roleFilter = document.getElementById('roleFilter').value;
+            const jenisFilter = document.getElementById('jenisFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const searchFilter = document.getElementById('searchInput').value.toLowerCase();
+            
+            currentFilters = { 
+                status: statusFilter, 
+                role: roleFilter, 
+                jenis: jenisFilter,
+                date: dateFilter,
+                search: searchFilter
+            };
+            
+            let filtered = allFeedback;
+            
+            // Filter by status
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(f => f.status === statusFilter);
+            }
+            
+            // Filter by role
+            if (roleFilter !== 'all') {
+                filtered = filtered.filter(f => f.role === roleFilter);
+            }
+            
+            // Filter by jenis
+            if (jenisFilter !== 'all') {
+                filtered = filtered.filter(f => f.jenis === jenisFilter);
+            }
+            
+            // Filter by date
+            if (dateFilter) {
+                filtered = filtered.filter(f => {
+                    const feedbackDate = new Date(f.displayDate).toISOString().split('T')[0];
+                    return feedbackDate === dateFilter;
+                });
+            }
+            
+            // Filter by search
+            if (searchFilter) {
+                filtered = filtered.filter(f => 
+                    f.nama.toLowerCase().includes(searchFilter) ||
+                    f.pesan.toLowerCase().includes(searchFilter)
+                );
+            }
+            
+            displayFeedback(filtered);
+        }
+
+        // Clear all filters
+        function clearFilters() {
+            document.getElementById('statusFilter').value = 'all';
+            document.getElementById('roleFilter').value = 'all';
+            document.getElementById('jenisFilter').value = 'all';
+            document.getElementById('dateFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            applyFilters();
+        }
+
+        // Display feedback in table
+        function displayFeedback(feedback) {
+            const tbody = document.getElementById('feedbackTableBody');
+            const countElement = document.getElementById('tableCount');
+            
+            countElement.textContent = `Menampilkan ${feedback.length} dari ${allFeedback.length} data`;
+            
+            if (feedback.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div>📝</div>
+                            <p>Tidak ada data yang sesuai dengan filter.</p>
+                            <button class="btn btn-primary" onclick="clearFilters()">Tampilkan Semua</button>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = feedback.map(item => {
+                const date = new Date(item.displayDate).toLocaleDateString('id-ID');
+                const statusClass = `status-${item.status}`;
+                const statusText = {
+                    'baru': 'Belum Dibaca',
+                    'dibaca': 'Sudah Dibaca',
+                    'ditindak': 'Ditindaklanjuti'
+                }[item.status];
+                
+                // Shorten message for table view
+                const shortMessage = item.pesan.length > 100 
+                    ? item.pesan.substring(0, 100) + '...' 
+                    : item.pesan;
+                
+                return `
+                    <tr>
+                        <td>${date}</td>
+                        <td><strong>${item.nama}</strong><br><small>${item.role}</small></td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${item.jenis.charAt(0).toUpperCase() + item.jenis.slice(1)}</td>
+                        <td>${shortMessage}</td>
+                        <td class="action-buttons-sm">
+                            <button class="btn btn-primary btn-sm" onclick="viewDetail('${item.id}')">Detail</button>
+                            <button class="btn btn-success btn-sm" onclick="updateStatus('${item.id}', 'dibaca')">Baca</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteFeedback('${item.id}')">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // View feedback detail
+        function viewDetail(feedbackId) {
+            const feedback = allFeedback.find(f => f.id === feedbackId);
+            if (!feedback) return;
+            
+            const date = new Date(feedback.displayDate).toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const statusText = {
+                'baru': 'Belum Dibaca',
+                'dibaca': 'Sudah Dibaca',
+                'ditindak': 'Ditindaklanjuti'
+            }[feedback.status];
+            
+            document.getElementById('modalContent').innerHTML = `
+                <div class="feedback-detail">
+                    <label>Tanggal Kirim</label>
+                    <p>${date}</p>
+                </div>
+                <div class="feedback-detail">
+                    <label>Pengirim</label>
+                    <p><strong>${feedback.nama}</strong> (${feedback.role})</p>
+                </div>
+                <div class="feedback-detail">
+                    <label>Jenis Pesan</label>
+                    <p>${feedback.jenis.charAt(0).toUpperCase() + feedback.jenis.slice(1)}</p>
+                </div>
+                <div class="feedback-detail">
+                    <label>Status</label>
+                    <p><span class="status-badge status-${feedback.status}">${statusText}</span></p>
+                </div>
+                <div class="feedback-detail">
+                    <label>Isi Pesan</label>
+                    <div class="feedback-text">
+                        <p>${feedback.pesan}</p>
+                    </div>
+                </div>
+                <div class="action-buttons" style="margin-top: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn btn-success" onclick="updateStatus('${feedback.id}', 'dibaca')">
+                        ✅ Tandai Sudah Dibaca
+                    </button>
+                    <button class="btn btn-primary" onclick="updateStatus('${feedback.id}', 'ditindak')">
+                        🔄 Tandai Ditindaklanjuti
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteFeedback('${feedback.id}')">
+                        🗑️ Hapus Pesan
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('detailModal').style.display = 'flex';
+            
+            // Auto mark as read when viewing details
+            if (feedback.status === 'baru') {
+                updateStatus(feedback.id, 'dibaca');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // Update feedback status
+        async function updateStatus(feedbackId, newStatus) {
+            try {
+                await db.collection('kritik-saran').doc(feedbackId).update({
+                    status: newStatus
+                });
+                
+                // Update local data
+                const feedbackIndex = allFeedback.findIndex(f => f.id === feedbackId);
+                if (feedbackIndex !== -1) {
+                    allFeedback[feedbackIndex].status = newStatus;
+                    updateStats();
+                    applyFilters();
+                }
+                
+                const statusMessages = {
+                    'baru': 'belum dibaca',
+                    'dibaca': 'sudah dibaca', 
+                    'ditindak': 'ditindaklanjuti'
+                };
+                
+                alert(`✅ Status berhasil diubah menjadi ${statusMessages[newStatus]}`);
+                
+            } catch (error) {
+                console.error('Error updating status:', error);
+                alert('❌ Gagal mengubah status');
+            }
+        }
+
+        // Delete feedback
+        async function deleteFeedback(feedbackId) {
+            if (!confirm('⚠️ Apakah Anda yakin ingin menghapus pesan ini? Tindakan ini tidak dapat dibatalkan.')) {
+                return;
+            }
+            
+            try {
+                await db.collection('kritik-saran').doc(feedbackId).delete();
+                
+                // Remove from local data
+                allFeedback = allFeedback.filter(f => f.id !== feedbackId);
+                updateStats();
+                applyFilters();
+                
+                alert('✅ Pesan berhasil dihapus');
+                closeModal();
+                
+            } catch (error) {
+                console.error('Error deleting feedback:', error);
+                alert('❌ Gagal menghapus pesan');
+            }
+        }
+
+        // Mark all as read
+        async function markAllAsRead() {
+            const unreadCount = allFeedback.filter(f => f.status === 'baru').length;
+            
+            if (unreadCount === 0) {
+                alert('ℹ️ Tidak ada pesan yang belum dibaca');
+                return;
+            }
+            
+            if (!confirm(`⚠️ Tandai SEMUA ${unreadCount} pesan sebagai sudah dibaca?`)) {
+                return;
+            }
+            
+            try {
+                const batch = db.batch();
+                const unreadFeedback = allFeedback.filter(f => f.status === 'baru');
+                
+                unreadFeedback.forEach(feedback => {
+                    const feedbackRef = db.collection('kritik-saran').doc(feedback.id);
+                    batch.update(feedbackRef, { status: 'dibaca' });
+                });
+                
+                await batch.commit();
+                
+                // Update local data
+                allFeedback.forEach(feedback => {
+                    if (feedback.status === 'baru') {
+                        feedback.status = 'dibaca';
+                    }
+                });
+                
+                updateStats();
+                applyFilters();
+                
+                alert(`✅ ${unreadCount} pesan berhasil ditandai sudah dibaca`);
+                
+            } catch (error) {
+                console.error('Error marking all as read:', error);
+                alert('❌ Gagal menandai pesan sebagai sudah dibaca');
+            }
+        }
+
+        // Delete all read feedback
+        async function deleteAllRead() {
+            const readCount = allFeedback.filter(f => f.status !== 'baru').length;
+            
+            if (readCount === 0) {
+                alert('ℹ️ Tidak ada pesan yang sudah dibaca untuk dihapus');
+                return;
+            }
+            
+            if (!confirm(`⚠️ Hapus SEMUA ${readCount} pesan yang sudah dibaca? Tindakan ini tidak dapat dibatalkan.`)) {
+                return;
+            }
+            
+            try {
+                const batch = db.batch();
+                const readFeedback = allFeedback.filter(f => f.status !== 'baru');
+                
+                readFeedback.forEach(feedback => {
+                    const feedbackRef = db.collection('kritik-saran').doc(feedback.id);
+                    batch.delete(feedbackRef);
+                });
+                
+                await batch.commit();
+                
+                // Update local data
+                allFeedback = allFeedback.filter(f => f.status === 'baru');
+                updateStats();
+                applyFilters();
+                
+                alert(`✅ ${readCount} pesan yang sudah dibaca berhasil dihapus`);
+                
+            } catch (error) {
+                console.error('Error deleting read feedback:', error);
+                alert('❌ Gagal menghapus pesan yang sudah dibaca');
+            }
+        }
+
+        // Refresh data
+        function refreshData() {
+            setupRealTimeListener();
+            alert('🔄 Data berhasil di-refresh');
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            if (allFeedback.length === 0) {
+                alert('ℹ️ Tidak ada data untuk di-export');
+                return;
+            }
+            
+            const data = allFeedback.map(feedback => ({
+                'Tanggal': new Date(feedback.displayDate).toLocaleDateString('id-ID'),
+                'Nama': feedback.nama,
+                'Status': feedback.role,
+                'Jenis': feedback.jenis.charAt(0).toUpperCase() + feedback.jenis.slice(1),
+                'Pesan': feedback.pesan,
+                'Status Pembacaan': {
+                    'baru': 'Belum Dibaca',
+                    'dibaca': 'Sudah Dibaca',
+                    'ditindak': 'Ditindaklanjuti'
+                }[feedback.status]
+            }));
+            
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Kritik & Saran');
+            
+            // Auto-size columns
+            const colWidths = [
+                { wch: 12 }, // Tanggal
+                { wch: 20 }, // Nama
+                { wch: 15 }, // Status
+                { wch: 10 }, // Jenis
+                { wch: 50 }, // Pesan
+                { wch: 15 }  // Status Pembacaan
+            ];
+            worksheet['!cols'] = colWidths;
+            
+            XLSX.writeFile(workbook, `kritik-saran-mpk-${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        // Logout
+        function logout() {
+            // Hentikan real-time listener
+            if (unsubscribeListener) {
+                unsubscribeListener();
+                unsubscribeListener = null;
+            }
+            
+            // Clear semua data autentikasi
+            localStorage.removeItem('adminAuthenticated');
+            localStorage.removeItem('adminName');
+            localStorage.removeItem('adminLoginTime');
+            
+            showLogin();
+            
+            // Clear form
+            document.getElementById('loginForm').reset();
+        }
+
+        // Add event listeners
+        document.getElementById('hamburgerMenu').addEventListener('click', toggleMobileMenu);
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        document.getElementById('roleFilter').addEventListener('change', applyFilters);
+        document.getElementById('jenisFilter').addEventListener('change', applyFilters);
+        document.getElementById('dateFilter').addEventListener('change', applyFilters);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PILKAOS - MPK SMADA</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        /* Header & Navigation */
+        .header {
+            background: rgb(110, 1, 1);
+            backdrop-filter: blur(20px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            display: flex;
+            transition: all 0.3s ease;
+        }
+
+        .logo img {
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+        }
+
+        .header.scrolled .logo {
+            color: #2c3e50;
+            text-shadow: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .header.scrolled .nav-link {
+            color: #2c3e50;
+            text-shadow: none;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #ffffff, #e74c3c);
+            transition: width 0.3s ease;
+        }
+
+        .header.scrolled .nav-link::after {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-link:hover {
+            color: #e74c3c;
+            transform: translateY(-2px);
+        }
+
+        .header.scrolled .nav-link:hover {
+            color: #3498db;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled .mobile-menu-toggle {
+            color: #dd463c;
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: 120px 0 60px;
+            text-align: center;
+            background: linear-gradient(135deg, #5f010d, #781f19);
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        .breadcrumb li {
+            margin: 0 0.5rem;
+        }
+        
+        .breadcrumb li:not(:last-child)::after {
+            content: "›";
+            margin-left: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        /* Sections */
+        .section {
+            padding: 5rem 0;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border-radius: 2px;
+        }
+
+        /* About Section */
+        .about {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .about-text h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .about-text p {
+            margin-bottom: 1rem;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .about-image {
+            height: 300px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .about-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Form Pendaftaran Kandidat Section */
+        .candidate-form {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Timeline Section */
+        .timeline {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .timeline-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #3498db, #e74c3c);
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 80px;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: 18px;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            background: #e74c3c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .timeline-date {
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-progress {
+            background: #cce7ff;
+            color: #004085;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        /* Gallery Section */
+        .gallery {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 1rem;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover .gallery-caption {
+            transform: translateY(0);
+        }
+
+        /* Info Cards */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .info-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #e74c3c;
+        }
+
+        .info-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .info-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .info-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Candidate Cards */
+        .candidates-section {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .candidates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .candidate-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .candidate-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .candidate-image {
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .candidate-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .candidate-card:hover .candidate-image img {
+            transform: scale(1.05);
+        }
+
+        .candidate-info {
+            padding: 1.5rem;
+        }
+
+        .candidate-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .candidate-class {
+            color: #e74c3c;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .candidate-vision {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .vote-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .vote-btn:hover {
+            background: linear-gradient(45deg, #2980b9, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .modal p {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Footer */
+        .footer {
+            background: rgb(110, 1, 1);
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: #3498db;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: #bdc3c7;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .footer-section a:hover {
+            color: #3498db;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #34495e;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            color: #bdc3c7;
+        }
+
+        .footer-bottom button {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .footer-bottom button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-menu {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 80px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding-top: 2rem;
+                transition: left 0.3s ease;
+                border-top: 1px solid rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-menu .nav-link {
+                color: #2c3e50;
+                text-shadow: none;
+                font-size: 1.2rem;
+                padding: 1rem 0;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+
+            .section {
+                padding: 3rem 0;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .candidates-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .timeline-container::before {
+                left: 20px;
+            }
+            
+            .timeline-item {
+                padding-left: 60px;
+            }
+            
+            .timeline-icon {
+                left: 8px;
+            }
+            
+            .logo img {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .about,
+        .gallery,
+        .info-card,
+        .candidate-form,
+        .timeline,
+        .candidates-section {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Additional adjustments for very small screens */
+        @media (max-width: 480px) {
+            .nav-container {
+                padding: 0.8rem 1rem;
+            }
+            
+            .logo img {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .about, .gallery, .candidate-form, .timeline, .candidates-section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo-container">
+                <a href="Beranda.html" class="logo"><img src="Image/Sman2.png" width="50" height="50" alt="Logo SMAN 2"></a>
+                <a href="Beranda.html" class="logo"><img src="Image/MPK2.png" width="55" height="51" alt="Logo MPK"></a>
+            </div>
+            <nav> 
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="Beranda.html" class="nav-link">Beranda</a></li>
+                    <li><a href="Tentang Kami.html" class="nav-link">Tentang Kami</a></li>
+                    <li><a href="Informasi.html" class="nav-link">Informasi</a></li>
+                    <li><a href="Pengumuman.html" class="nav-link">Pengumuman</a></li>
+                    <li><a href="Reorganisasi.html" class="nav-link">Reorganisasi</a></li>
+                </ul>
+            </nav>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle">☰</button>
+        </div>
+    </header>
+    
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">PILKAOS</h1>
+        <ul class="breadcrumb">
+            <li><a href="Beranda.html">Beranda</a></li>
+            <li><a href="Tentang Kami.html">Tentang Kami</a></li>
+            <li>PILKAOS</li>
+        </ul>
+    </div>
+
+    <!-- About PILKAOS Section -->
+    <section class="section">
+        <div class="about">
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>Apa itu PILKAOS?</h3>
+                    <p>PILKAOS (Pemilihan Ketua OSIS) adalah program kerja yang ada di MPK untuk memilih ketua OSIS di SMA Negeri 2 Purwokerto dengan menggunakan suara seluruh warga sekolah.</p>
+                    <p>Program ini merupakan wujud demokrasi di lingkungan sekolah, di mana setiap siswa memiliki hak untuk memilih pemimpin mereka secara langsung dan transparan.</p>
+                    <p>PILKAOS menjadi momen penting dalam menentukan arah kebijakan OSIS untuk satu tahun ke depan, sehingga prosesnya dilakukan dengan sangat hati-hati dan melibatkan seluruh komponen sekolah.</p>
+                </div>
+                <div class="about-image">
+                    <img src="Image/PILKAOS.JPG" alt="Ilustrasi PILKAOS">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kandidat Section -->
+    <section class="section">
+        <h2 class="section-title">Kandidat Ketua OSIS</h2>
+        <div class="candidates-section">
+            <div class="candidates-grid" id="candidatesContainer">
+                <!-- Candidate cards will be loaded here dynamically -->
+                <div class="spinner" id="candidatesSpinner"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Progres Section -->
+    <section class="section">
+        <h2 class="section-title">Timeline PILKAOS</h2>
+        <div class="timeline">
+            <div class="timeline-container" id="timelineContainer">
+                <div class="timeline-item">
+                    <div class="timeline-icon">1</div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">20 Oktober 2025</div>
+                        <div class="status-badge status-completed">Selesai</div>
+                        <h4 class="timeline-title">Pemilihan Ketua OSIS</h4>
+                        <p>Hari pemilihan ketua OSIS untuk seluruh warga sekolah.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Info Cards Section -->
+    <section class="section">
+        <h2 class="section-title">Tujuan dan Manfaat PILKAOS</h2>
+        <div class="info-cards">
+            <div class="info-card">
+                <h3>Melatih Jiwa Demokratis</h3>
+                <p>PILKAOS menjadi sarana untuk melatih siswa dalam memahami dan mempraktikkan nilai-nilai demokrasi sejak dini.</p>
+            </div>
+            <div class="info-card">
+                <h3>Menemukan Pemimpin Berkualitas</h3>
+                <p>Proses seleksi yang ketat memastikan terpilihnya ketua OSIS yang benar-benar kompeten dan berintegritas.</p>
+            </div>
+            <div class="info-card">
+                <h3>Meningkatkan Partisipasi Siswa</h3>
+                <p>Dengan melibatkan seluruh warga sekolah, PILKAOS meningkatkan rasa memiliki dan partisipasi aktif siswa.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="section">
+        <h2 class="section-title">Dokumentasi PILKAOS</h2>
+        <div class="gallery">
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="Image/PILKAOS.JPG" alt="Sesi Kampanye PILKAOS">
+                    <div class="gallery-caption">
+                        <h4>Sesi Kampanye</h4>
+                        <p>Kandidat menyampaikan visi dan misi mereka</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="Image/PILKAOS2.JPG" alt="Pemaparan visi dan misi">
+                    <div class="gallery-caption">
+                        <h4>Debat Kandidat</h4>
+                        <p>Sesi tanya jawab antara kandidat dan siswa</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="Image/PILKAOS3.jpg" alt="Pentas seni">
+                    <div class="gallery-caption">
+                        <h4>Pemungutan Suara</h4>
+                        <p>Siswa memberikan suara mereka secara rahasia</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="Image/PILKAOS4.jpg" alt="Pemilihan">
+                    <div class="gallery-caption">
+                        <h4>Penghitungan Suara</h4>
+                        <p>Proses penghitungan suara yang transparan</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <h3>✅ Pendaftaran Berhasil!</h3>
+            <p>Terima kasih telah mendaftarkan kandidat ketua OSIS. Data kandidat telah berhasil dicatat dan akan segera kami verifikasi.</p>
+            <button class="modal-btn" onclick="closeModal()">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Vote Modal -->
+    <div class="modal" id="voteModal">
+        <div class="modal-content">
+            <h3>🗳️ Konfirmasi Pemilihan</h3>
+            <p id="voteCandidateInfo">Anda akan memilih <strong id="candidateName"></strong> sebagai ketua OSIS. Pilihan ini tidak dapat diubah setelah dikonfirmasi.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+                <button class="modal-btn" onclick="closeVoteModal()">Batal</button>
+                <button class="modal-btn" style="background: linear-gradient(45deg, #e74c3c, #c0392b);" onclick="submitVote()">Konfirmasi Pilihan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <!-- Konten footer dapat ditambahkan di sini -->
+        </div>
+        <div class="footer-bottom">
+            <button onclick="document.location='https://www.instagram.com/mpksmadapwt/'">@mpksmadapwt</button>
+        </div>
+    </footer>
+
+    <!-- Firebase Configuration untuk MPK-Smada -->
+    <script>
+        // Firebase configuration untuk project MPK-Smada
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVFjyWukHa8joBjlS9eKRP3Grq-fVFCkk",
+            authDomain: "mpk-smada.firebaseapp.com",
+            projectId: "mpk-smada",
+            storageBucket: "mpk-smada.firebasestorage.app",
+            messagingSenderId: "678684148175",
+            appId: "1:678684148175:web:9af24d801ddb24011a52ba",
+            measurementId: "G-GTPYYMJQGV"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
+
+        mobileMenuToggle.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                navMenu.classList.remove('active');
+            });
+        });
+
+        // Header background on scroll
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Form submission for candidate registration
+        const candidateForm = document.getElementById('candidateForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        candidateForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Mendaftarkan...';
+            
+            try {
+                // Get form data
+                const formData = {
+                    nama: document.getElementById('nama').value,
+                    kelas: document.getElementById('kelas').value,
+                    visi: document.getElementById('visi').value,
+                    misi: document.getElementById('misi').value,
+                    program: document.getElementById('program').value,
+                    pengalaman: document.getElementById('pengalaman').value,
+                    status: 'pending',
+                    tanggal: new Date().toISOString(),
+                    votes: 0,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                // Save to Firestore
+                await db.collection('candidates').add(formData);
+                
+                // Show success modal
+                document.getElementById('successModal').style.display = 'flex';
+                
+                // Reset form
+                candidateForm.reset();
+                
+                // Reload candidates to show new candidate
+                loadCandidates();
+                
+            } catch (error) {
+                console.error('Error submitting candidate:', error);
+                alert('Maaf, terjadi kesalahan. Silakan coba lagi.');
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Daftarkan Kandidat';
+            }
+        });
+
+        // Close modal function
+        function closeModal() {
+            document.getElementById('successModal').style.display = 'none';
+        }
+
+        // Vote modal functions
+        let selectedCandidateId = null;
+        let selectedCandidateName = null;
+
+        function openVoteModal(candidateId, candidateName) {
+            selectedCandidateId = candidateId;
+            selectedCandidateName = candidateName;
+            document.getElementById('candidateName').textContent = candidateName;
+            document.getElementById('voteModal').style.display = 'flex';
+        }
+
+        function closeVoteModal() {
+            document.getElementById('voteModal').style.display = 'none';
+            selectedCandidateId = null;
+            selectedCandidateName = null;
+        }
+
+        async function submitVote() {
+            try {
+                // In a real application, you would check if the user has already voted
+                // and implement proper authentication
+                
+                // Update candidate votes
+                const candidateRef = db.collection('candidates').doc(selectedCandidateId);
+                await candidateRef.update({
+                    votes: firebase.firestore.FieldValue.increment(1)
+                });
+                
+                // Close modal and show success message
+                closeVoteModal();
+                alert('Terima kasih! Suara Anda telah tercatat.');
+                
+                // Reload candidates to show updated vote count
+                loadCandidates();
+                
+            } catch (error) {
+                console.error('Error submitting vote:', error);
+                alert('Maaf, terjadi kesalahan. Silakan coba lagi.');
+            }
+        }
+
+        // Load candidates data
+        async function loadCandidates() {
+            const candidatesContainer = document.getElementById('candidatesContainer');
+            const spinner = document.getElementById('candidatesSpinner');
+            
+            try {
+                // Get candidates from Firestore
+                const snapshot = await db.collection('candidates')
+                    .orderBy('timestamp', 'desc')
+                    .get();
+                
+                // Clear spinner
+                spinner.style.display = 'none';
+                
+                if (snapshot.empty) {
+                    candidatesContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Belum ada kandidat yang terdaftar.</p>';
+                    return;
+                }
+                
+                // Create candidate cards
+                let candidatesHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const id = doc.id;
+                    
+                    candidatesHTML += `
+                        <div class="candidate-card">
+                            <div class="candidate-image">
+                                <img src="Image/PILKAOS.JPG" alt="Kandidat ${data.nama}">
+                            </div>
+                            <div class="candidate-info">
+                                <div class="candidate-name">${data.nama}</div>
+                                <div class="candidate-class">${data.kelas}</div>
+                                <div class="candidate-vision">
+                                    <strong>Visi:</strong> ${data.visi.substring(0, 100)}${data.visi.length > 100 ? '...' : ''}
+                                </div>
+                                <div style="margin-top: 1rem; font-size: 0.9rem; color: #3498db;">
+                                    <strong>${data.votes || 0} Suara</strong>
+                                </div>
+                                <button class="vote-btn" onclick="openVoteModal('${id}', '${data.nama}')">
+                                    Beri Suara
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                candidatesContainer.innerHTML = candidatesHTML;
+                
+            } catch (error) {
+                console.error('Error loading candidates:', error);
+                spinner.style.display = 'none';
+                candidatesContainer.innerHTML = '<p style="text-align: center; color: #e74c3c; padding: 2rem;">Gagal memuat data kandidat. Silakan refresh halaman.</p>';
+            }
+        }
+
+        // Load candidates when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCandidates();
+            
+            // Add intersection observer for animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            // Observe elements for animation
+            document.querySelectorAll('.about, .gallery, .info-card, .candidate-form, .timeline, .candidates-section').forEach(element => {
+                element.style.opacity = 0;
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(element);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kritik & Saran - MPK SMADA</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        /* Header & Navigation */
+        .header {
+            background: rgb(110, 1, 1);
+            backdrop-filter: blur(20px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            display: flex;
+            transition: all 0.3s ease;
+        }
+
+        .logo img {
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+        }
+
+        .header.scrolled .logo {
+            color: #2c3e50;
+            text-shadow: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .header.scrolled .nav-link {
+            color: #2c3e50;
+            text-shadow: none;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #ffffff, #e74c3c);
+            transition: width 0.3s ease;
+        }
+
+        .header.scrolled .nav-link::after {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-link:hover {
+            color: #e74c3c;
+            transform: translateY(-2px);
+        }
+
+        .header.scrolled .nav-link:hover {
+            color: #3498db;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled .mobile-menu-toggle {
+            color: #dd463c;
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: 120px 0 60px;
+            text-align: center;
+            background: linear-gradient(135deg, #5f010d, #781f19);
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        .breadcrumb li {
+            margin: 0 0.5rem;
+        }
+        
+        .breadcrumb li:not(:last-child)::after {
+            content: "›";
+            margin-left: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto 3rem;
+            padding: 0 2rem;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-label .optional {
+            color: #666;
+            font-weight: normal;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #6e0101;
+            box-shadow: 0 0 0 3px rgba(110, 1, 1, 0.1);
+        }
+
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .radio-option input {
+            margin: 0;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #6e0101, #8b0000);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(110, 1, 1, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #c3e6cb;
+            margin-bottom: 2rem;
+            text-align: center;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            margin-bottom: 2rem;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Kritik & Saran List */
+        .feedback-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #2c3e50;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border-radius: 2px;
+        }
+
+        .feedback-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .feedback-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border-left: 4px solid #6e0101;
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .feedback-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .feedback-role {
+            background: #6e0101;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .feedback-type {
+            background: #e74c3c;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .feedback-content {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .feedback-date {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            text-align: right;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgb(110, 1, 1);
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: #3498db;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: #bdc3c7;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .footer-section a:hover {
+            color: #3498db;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #34495e;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            color: #bdc3c7;
+        }
+
+        .footer-bottom button {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .footer-bottom button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-container,
+        .feedback-section {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            /* Header & Navigation */
+            .nav-menu {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 80px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding-top: 2rem;
+                transition: left 0.3s ease;
+                border-top: 1px solid rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-menu .nav-link {
+                color: #2c3e50;
+                text-shadow: none;
+                font-size: 1.2rem;
+                padding: 1rem 0;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            /* Page Header */
+            .page-header {
+                padding: 100px 0 40px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .breadcrumb {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .breadcrumb li {
+                margin: 0.25rem 0.5rem;
+            }
+
+            /* Main Content */
+            .main-content {
+                padding: 0 1rem;
+            }
+
+            .form-container, .feedback-section {
+                padding: 2rem 1.5rem;
+            }
+
+            .radio-group {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .feedback-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            /* Logo adjustments */
+            .nav-container {
+                padding: 0.8rem 1rem;
+            }
+            
+            .logo img {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 1.7rem;
+            }
+            
+            .section-title {
+                font-size: 1.4rem;
+            }
+            
+            .nav-container {
+                padding: 1rem;
+            }
+            
+            .form-container, .feedback-section {
+                padding: 1.5rem 1rem;
+            }
+            
+            .breadcrumb li {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Kritik & Saran</h1>
+        <ul class="breadcrumb">
+            <li><a href="Beranda.html">Beranda</a></li>
+            <li>Kritik & Saran</li>
+        </ul>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo-container">
+                <a href="Beranda.html" class="logo">
+                    <img src="Image/Sman2.png" width="50" height="50" alt="Logo SMAN 2">
+                </a>
+                <a href="Beranda.html" class="logo">
+                    <img src="Image/MPK2.png" width="60" height="56" alt="Logo MPK">
+                </a>
+            </div>
+            <nav> 
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="Beranda.html" class="nav-link">Beranda</a></li>
+                    <li><a href="Tentang Kami.html" class="nav-link">Tentang Kami</a></li>
+                    <li><a href="Informasi.html" class="nav-link">Informasi</a></li>
+                    <li><a href="Pengumuman.html" class="nav-link">Pengumuman</a></li>
+                    <li><a href="Reorganisasi.html" class="nav-link">Reorganisasi</a></li>
+                    <li><a href="kritik.html" class="nav-link">Kritik</a></li>
+                    <li><a href="admin.html" class="nav-link">Admin</a></li>
+                </ul>
+            </nav>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle">☰</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage">
+            <strong>Terima kasih!</strong> Kritik dan saran Anda telah berhasil dikirim.
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage">
+            <strong>Error!</strong> <span id="errorText">Terjadi kesalahan saat mengirim data.</span>
+        </div>
+
+        <!-- Form Kritik & Saran -->
+        <div class="form-container">
+            <form id="feedbackForm">
+                <div class="form-group">
+                    <label for="nama" class="form-label">
+                        Nama Lengkap <span class="optional">(opsional)</span>
+                    </label>
+                    <input type="text" id="nama" class="form-control" placeholder="Masukkan nama lengkap Anda (jika ingin disebutkan)">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Status *</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="role" value="Siswa" required>
+                            Siswa
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="role" value="Guru/Karyawan" required>
+                            Guru/Karyawan
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Jenis Pesan *</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="jenis" value="kritik" required>
+                            Kritik
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="jenis" value="saran" required>
+                            Saran
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="jenis" value="masukan" required>
+                            Masukan
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="jenis" value="lainnya" required>
+                            Lainnya
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pesan" class="form-label">Isi Pesan *</label>
+                    <textarea id="pesan" class="form-control" required placeholder="Tuliskan kritik, saran, atau masukan Anda secara detail..."></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span id="submitText">Kirim Kritik & Saran</span>
+                    <div class="loading" id="loadingSpinner" style="display: none;"></div>
+                </button>
+            </form>
+        </div>
+
+        <!-- Daftar Kritik & Saran -->
+        <div class="feedback-section">
+            <h2 class="section-title">Kritik & Saran Terbaru</h2>
+            <div class="feedback-list" id="feedbackList">
+                <div class="empty-state" id="emptyState">
+                    <i>💬</i>
+                    <p>Belum ada kritik dan saran yang ditampilkan.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+        </div>
+        <div class="footer-bottom">
+            <button onclick="window.location.href='https://www.instagram.com/mpksmadapwt/'">@mpksmadapwt</button>
+        </div>
+    </footer>
+
+    <script>
+        // Firebase Configuration - Menggunakan Firestore
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVFjyWukHa8joBjlS9eKRP3Grq-fVFCkk",
+            authDomain: "mpk-smada.firebaseapp.com",
+            projectId: "mpk-smada",
+            storageBucket: "mpk-smada.firebasestorage.app",
+            messagingSenderId: "678684148175",
+            appId: "1:678684148175:web:86fe1427dde402841a52ba",
+            measurementId: "G-EFGDPQJP2S"
+        };
+
+        // Initialize Firebase dengan Firestore
+        let db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            console.log('Firebase Firestore berhasil diinisialisasi');
+        } catch (error) {
+            console.error('Error inisialisasi Firebase:', error);
+        }
+
+        // DOM Elements
+        const feedbackForm = document.getElementById('feedbackForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const feedbackList = document.getElementById('feedbackList');
+        const emptyState = document.getElementById('emptyState');
+
+        // Fungsi untuk menampilkan error
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.add('show');
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 5000);
+        }
+
+        // Mobile Menu Toggle
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
+
+        mobileMenuToggle.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                navMenu.classList.remove('active');
+            });
+        });
+
+        // Header background on scroll
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Form Submission dengan Firestore
+        feedbackForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Cek apakah Firestore tersedia
+            if (!db) {
+                showError('Database tidak tersedia. Silakan refresh halaman.');
+                return;
+            }
+            
+            // Get form values
+            const nama = document.getElementById('nama').value.trim();
+            const role = document.querySelector('input[name="role"]:checked')?.value;
+            const jenis = document.querySelector('input[name="jenis"]:checked')?.value;
+            const pesan = document.getElementById('pesan').value.trim();
+            
+            // Validate required fields
+            if (!role || !jenis || !pesan) {
+                showError('Harap lengkapi semua field yang wajib diisi!');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitText.style.display = 'none';
+            loadingSpinner.style.display = 'inline-block';
+            errorMessage.classList.remove('show');
+            
+            try {
+                // Create feedback object
+                const feedback = {
+                    nama: nama || 'Anonim',
+                    role: role,
+                    jenis: jenis,
+                    pesan: pesan,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'baru'
+                };
+                
+                console.log('Mengirim data ke Firestore:', feedback);
+                
+                // Save to Firestore
+                await db.collection('kritik-saran').add(feedback);
+                
+                console.log('Data berhasil dikirim ke Firestore');
+                
+                // Show success message
+                successMessage.classList.add('show');
+                
+                // Reset form
+                feedbackForm.reset();
+                
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.classList.remove('show');
+                }, 5000);
+                
+            } catch (error) {
+                console.error('Error saving feedback:', error);
+                showError('Terjadi kesalahan saat mengirim kritik dan saran: ' + error.message);
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitText.style.display = 'inline';
+                loadingSpinner.style.display = 'none';
+            }
+        });
+
+        // Load feedback from Firestore
+        function loadFeedback() {
+            if (!db) {
+                console.error('Firestore tidak tersedia');
+                showError('Database tidak tersedia');
+                return;
+            }
+
+            console.log('Memuat data dari Firestore...');
+            
+            // Real-time listener untuk Firestore
+            db.collection('kritik-saran')
+                .orderBy('timestamp', 'desc')
+                .limit(10)
+                .onSnapshot(
+                    // Success callback
+                    (snapshot) => {
+                        console.log('Data diterima dari Firestore:', snapshot.docs.length, 'dokumen');
+                        
+                        const feedbacks = [];
+                        snapshot.forEach((doc) => {
+                            const data = doc.data();
+                            feedbacks.push({
+                                id: doc.id,
+                                ...data,
+                                // Format timestamp untuk display
+                                displayDate: data.timestamp ? data.timestamp.toDate() : new Date()
+                            });
+                        });
+                        
+                        feedbackList.innerHTML = '';
+                        
+                        if (feedbacks.length === 0) {
+                            emptyState.style.display = 'block';
+                            console.log('Tidak ada data ditemukan');
+                            return;
+                        }
+                        
+                        emptyState.style.display = 'none';
+                        
+                        console.log('Data yang akan ditampilkan:', feedbacks);
+                        
+                        // Display feedbacks
+                        feedbacks.forEach(feedback => {
+                            const feedbackItem = document.createElement('div');
+                            feedbackItem.className = 'feedback-item';
+                            
+                            const date = feedback.displayDate;
+                            const formattedDate = date.toLocaleDateString('id-ID', {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                            
+                            feedbackItem.innerHTML = `
+                                <div class="feedback-header">
+                                    <div class="feedback-meta">
+                                        <span class="feedback-name">${feedback.nama}</span>
+                                        <span class="feedback-role">${feedback.role}</span>
+                                        <span class="feedback-type">${feedback.jenis}</span>
+                                    </div>
+                                </div>
+                                <div class="feedback-content">
+                                    ${feedback.pesan}
+                                </div>
+                                <div class="feedback-date">
+                                    ${formattedDate}
+                                </div>
+                            `;
+                            
+                            feedbackList.appendChild(feedbackItem);
+                        });
+                    },
+                    // Error callback
+                    (error) => {
+                        console.error('Error loading feedback:', error);
+                        feedbackList.innerHTML = `
+                            <div class="empty-state">
+                                <i>❌</i>
+                                <p>Gagal memuat data dari server: ${error.message}</p>
+                                <button class="btn btn-primary" onclick="loadFeedback()">Coba Lagi</button>
+                            </div>
+                        `;
+                    }
+                );
+        }
+
+        // Test Firestore connection
+        function testFirestoreConnection() {
+            if (!db) {
+                console.error('Firestore tidak tersedia');
+                return;
+            }
+            
+            // Test dengan menambahkan data test
+            db.collection('test').add({
+                message: 'Test connection',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                console.log('Firestore connection test: SUCCESS');
+                // Clean up test data
+                db.collection('test').get().then(snapshot => {
+                    snapshot.forEach(doc => {
+                        doc.ref.delete();
+                    });
+                });
+            }).catch((error) => {
+                console.error('Firestore connection test: FAILED', error);
+            });
+        }
+
+        // Load initial feedback dan test connection
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add animation to elements
+            const formContainer = document.querySelector('.form-container');
+            const feedbackSection = document.querySelector('.feedback-section');
+            
+            if (formContainer) {
+                formContainer.style.animationDelay = '0.1s';
+            }
+            
+            if (feedbackSection) {
+                feedbackSection.style.animationDelay = '0.2s';
+            }
+            
+            // Test connection
+            testFirestoreConnection();
+            
+            // Load feedback data
+            loadFeedback();
+        });
+
+        // Tambahkan style untuk tombol
+        const style = document.createElement('style');
+        style.textContent = `
+            .btn {
+                padding: 0.5rem 1rem;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            }
+            .btn-primary {
+                background: #3498db;
+                color: white;
+            }
+            .btn:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

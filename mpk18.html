@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPK '18 - SMAN 2 Purwokerto</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        /* Header & Navigation */
+        .header {
+            background: rgb(110, 1, 1);
+            backdrop-filter: blur(20px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            display: flex;
+            transition: all 0.3s ease;
+        }
+
+        .logo img {
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .header.scrolled .nav-link {
+            color: #2c3e50;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #ffffff, #e74c3c);
+            transition: width 0.3s ease;
+        }
+
+        .header.scrolled .nav-link::after {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: 120px 0 60px;
+            text-align: center;
+            background: linear-gradient(135deg, #5f010d, #781f19);
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        .breadcrumb li {
+            margin: 0 0.5rem;
+        }
+        
+        .breadcrumb li:not(:last-child)::after {
+            content: "›";
+            margin-left: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+        }
+
+        /* Sections */
+        .section {
+            padding: 5rem 0;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border-radius: 2px;
+        }
+
+        /* Group Photo Section */
+        .group-photos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .photo-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .photo-image {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .photo-caption {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .photo-caption h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Position Layout */
+        .positions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .position-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center; 
+            gap: 2rem;
+        }
+
+        .position-category {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            width: 100%; 
+        }
+
+        .position-category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #e74c3c;
+            text-align: center;
+        }
+
+        .position-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            width: 100%; 
+            max-width: 350px; 
+            margin-bottom: 0; 
+        }
+
+        .position-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .position-header {
+            background: linear-gradient(135deg, #5f010d, #781f19);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .position-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .position-content {
+            padding: 1.5rem;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .position-photo {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin: 0 auto 1.5rem; /* Tambah margin bawah untuk jarak dengan person-info */
+            border-radius: 10px;
+        }
+
+        .person-info {
+            margin: 3rem 0; /* Tambah margin atas dan bawah untuk jarak */
+            padding: 1.2rem 1rem; /* Tambah padding untuk ruang dalam yang lebih baik */
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            background: #f8f9fa; /* Warna background yang lembut */
+            border-radius: 8px; /* Sudut yang sedikit melengkung */
+        }
+
+        .person-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem; /* Tambah margin bawah untuk jarak dengan kelas */
+            color: #2c3e50;
+        }
+
+        .person-class {
+            font-size: 1rem;
+            color: #777;
+            font-weight: 500;
+        }
+
+        .position-description {
+            color: #666;
+            line-height: 1.6;
+            margin-top: auto;
+            padding-top: 1rem; /* Tambah padding atas untuk jarak dari person-info */
+        }
+
+        /* Commission Layout - Sama seperti position-category */
+        .commission-category {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .commission-category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .commission-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid;
+            text-align: center;
+        }
+
+        .commission-a .commission-title {
+            border-color: #3498db;
+        }
+
+        .commission-b .commission-title {
+            border-color: #e74c3c;
+        }
+
+        .commission-c .commission-title {
+            border-color: #2ecc71;
+        }
+
+        .commission-d .commission-title {
+            border-color: #9b59b6;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgb(110, 1, 1);
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 3rem;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #34495e;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            color: #bdc3c7;
+        }
+
+        .footer-bottom button {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .footer-bottom button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .position-card {
+                max-width: 300px; /* Sedikit lebih kecil di tablet */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 80px);
+                background: rgba(255, 255, 255, 0.98);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding-top: 2rem;
+                transition: left 0.3s ease;
+            }
+
+            .nav-menu .nav-link {
+                color: #2c3e50;
+                font-size: 1.2rem;
+                padding: 1rem 0;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .page-header {
+                padding: 100px 0 40px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .section {
+                padding: 3rem 0;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .group-photos {
+                grid-template-columns: 1fr;
+            }
+            
+            .position-card {
+                max-width: 100%; /* Kartu penuh di mobile */
+            }
+            
+            .position-photo {
+                height: 180px;
+                margin-bottom: 1.2rem; /* Sesuaikan margin untuk mobile */
+            }
+
+            .person-info {
+                margin: 1.2rem 0;
+                padding: 1rem 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .position-photo {
+                height: 150px;
+                margin-bottom: 1rem; /* Sesuaikan margin untuk mobile kecil */
+            }
+            
+            .position-header {
+                padding: 1rem;
+            }
+            
+            .position-content {
+                padding: 1rem;
+            }
+
+            .person-info {
+                margin: 1rem 0;
+                padding: 0.8rem 0.6rem;
+            }
+
+            .person-name {
+                margin-bottom: 0.3rem;
+            }
+
+            .position-description {
+                padding-top: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">MPK '18</h1>
+        <ul class="breadcrumb">
+            <li><a href="Beranda.html">Beranda</a></li>
+            <li><a href="Informasi.html">Informasi</a></li>
+            <li>MPK '18</li>
+        </ul>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo-container">
+                <a href="#" class="logo"><img src="Image/Sman2.png" width="50" height="50" alt="Logo SMAN 2"></a>
+                <a href="#" class="logo"><img src="Image/MPK2.png" width="60" height="56" alt="Logo MPK"></a>
+            </div>
+            <nav> 
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="Beranda.html" class="nav-link">Beranda</a></li>
+                    <li><a href="Tentang Kami.html" class="nav-link">Tentang Kami</a></li>
+                    <li><a href="Informasi.html" class="nav-link">Informasi</a></li>
+                    <li><a href="Pengumuman.html" class="nav-link">Pengumuman</a></li>
+                    <li><a href="Reorganisasi.html" class="nav-link">Reorganisasi</a></li>
+                </ul>
+            </nav>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle">☰</button>
+        </div>
+    </header>
+
+    <!-- Group Photos Section -->
+    <section class="section">
+        <h2 class="section-title">Foto Bersama MPK '18</h2>
+        <div class="group-photos">
+            <div class="photo-card">
+                <img src="Image/MPK'18.jpeg" alt="MPK'18" class="photo-image">
+                <div class="photo-caption">
+                    <h3>Foto Keluarga Besar</h3>
+                    <p>Seluruh anggota MPK angkatan 18</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="Image/MPK'18.jpeg" alt="MPK'18 2" class="photo-image">
+                <div class="photo-caption">
+                    <h3>Foto Keluarga Besar</h3>
+                    <p>Seluruh anggota MPK angkatan 18</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="Image/MPK'18.jpeg" alt="MPK'18 3" class="photo-image">
+                <div class="photo-caption">
+                    <h3>Foto Keluarga Besar</h3>
+                    <p>Seluruh anggota MPK angkatan 18</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="Image/MPK'18.jpeg" alt="MPK'18 4" class="photo-image">
+                <div class="photo-caption">
+                    <h3>Foto Keluarga Besar</h3>
+                    <p>Seluruh anggota MPK angkatan 18</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Positions Section -->
+    <section class="section">
+        <h2 class="section-title">Struktur Kepengurusan MPK '18</h2>
+        
+        <div class="positions-container">
+            <!-- Pengurus Inti -->
+            <div class="position-category">
+                <h3 class="category-title">Pengurus Inti</h3>
+                
+                <div class="position-row">
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Ketua Umum</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Grania Perlita Zakira</div>
+                                <div class="person-class">NPM. 24.25.18U.001</div>
+                            </div>
+                            <p class="position-description">
+                                Memimpin seluruh kegiatan MPK dan bertanggung jawab atas keberlangsungan organisasi. 
+                                Mengkoordinasikan semua komisi dan memustikan program kerja berjalan sesuai rencana.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Pembimbing Muda</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Haikal Al Ghazali Santoso P</div>
+                                <div class="person-class">NPM. 24.25.18U.002</div>
+                            </div>
+                            <p class="position-description">
+                                Memberikan bimbingan dan arahan kepada pengurus MPK. Menjadi penghubung antara MPK 
+                                dengan pihak sekolah dan memberikan masukan untuk pengembangan organisasi.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Ketua 1</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Stenly Disatria Abdullah</div>
+                                <div class="person-class">NPM. 24.25.18U.003</div>
+                            </div>
+                            <p class="position-description">
+                                Mendampingi Ketua Umum dalam menjalankan tugas. Bertanggung jawab atas koordinasi 
+                                internal dan pengawasan kegiatan harian MPK.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Ketua 2</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Sabrina Quinsha</div>
+                                <div class="person-class">NPM. 24.25.18U.004</div>
+                            </div>
+                            <p class="position-description">
+                                Membantu Ketua Umum dalam mengkoordinasikan kegiatan eksternal. Bertanggung jawab 
+                                atas hubungan dengan organisasi lain dan publikasi kegiatan.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Sekretaris</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Intantiara Cita Sutarto</div>
+                                <div class="person-class">NPM. 24.25.18U.005</div>
+                            </div>
+                            <p class="position-description">
+                                Mengelola administrasi dan dokumentasi MPK. Bertanggung jawab atas penyusunan 
+                                laporan, notulensi rapat, dan pengarsipan dokumen organisasi.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Sekretaris</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Intantiara Cita Sutarto</div>
+                                <div class="person-class">NPM. 24.25.18U.006</div>
+                            </div>
+                            <p class="position-description">
+                                Mengelola administrasi dan dokumentasi MPK. Bertanggung jawab atas penyusunan 
+                                laporan, notulensi rapat, dan pengarsipan dokumen organisasi.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Bendahara</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Aurelia Helsa Maheswari</div>
+                                <div class="person-class">NPM. 24.25.18U.007</div>
+                            </div>
+                            <p class="position-description">
+                                Mengelola keuangan MPK secara transparan. Bertanggung jawab atas perencanaan 
+                                anggaran, pencatatan keuangan, dan pelaporan penggunaan dana.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Bendahara</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Aurelia Helsa Maheswari</div>
+                                <div class="person-class">NPM. 24.25.18U.008</div>
+                            </div>
+                            <p class="position-description">
+                                Mengelola keuangan MPK secara transparan. Bertanggung jawab atas perencanaan 
+                                anggaran, pencatatan keuangan, dan pelaporan penggunaan dana.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Koordinator Komisi -->
+            <div class="position-category">
+                <h3 class="category-title">Koordinator Komisi</h3>
+                
+                <div class="position-row">
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Koordinator Komisi</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Adhelita Rahma Indira Dhianti</div>
+                                <div class="person-class">NPM. 24.25.18U.009</div>
+                            </div>
+                            <p class="position-description">
+                                Mengkoordinasikan kerja sama antar keempat komisi. Memastikan sinergi dan 
+                                kolaborasi yang baik dalam pelaksanaan program kerja masing-masing komisi.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Komisi A -->
+            <div class="commission-category commission-a">
+                <h3 class="commission-title">Komisi A</h3>
+                
+                <div class="position-row">
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Ketua Komisi A</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Nabilla Putri Paramitha</div>
+                                <div class="person-class">NPM. 24.25.18A.010</div>
+                            </div>
+                            <p class="position-description">
+                                Memimpin Komisi A yang menaungi bidang OPPK (Organisasi Pendidikan Politik 
+                                dan Kepemimpinan). Bertanggung jawab atas pengembangan leadership dan organisasi siswa.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Wakil Ketua Komisi A</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Rasendriya Arkanaputra</div>
+                                <div class="person-class">NPM. 24.25.18A.011</div>
+                            </div>
+                            <p class="position-description">
+                                Mendampingi Ketua Komisi A dalam menjalankan tugas. Membantu mengkoordinasikan 
+                                kegiatan dan program kerja di bidang kepemimpinan dan organisasi.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Komisi B -->
+            <div class="commission-category commission-b">
+                <h3 class="commission-title">Komisi B</h3>
+                
+                <div class="position-row">
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Ketua Komisi B</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Anindya Agraprana Tatio</div>
+                                <div class="person-class">NPM. 24.25.18B.014</div>
+                            </div>
+                            <p class="position-description">
+                                Memimpin Komisi B yang menaungi bidang KJDK (Kesehatan Jasmani dan Daya Kreasi) 
+                                dan KK (Keterampilan Kewirausahaan). Fokus pada pengembangan kesehatan, kreativitas, dan kewirausahaan siswa.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Wakil Ketua Komisi B</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Ahnaf Fairuz Nabil</div>
+                                <div class="person-class">NPM. 24.25.18B.015</div>
+                            </div>
+                            <p class="position-description">
+                                Mendampingi Ketua Komisi B dalam mengelola kegiatan olahraga, kesehatan, dan 
+                                kewirausahaan. Membantu mengembangkan potensi siswa di bidang non-akademik.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Komisi C -->
+            <div class="commission-category commission-c">
+                <h3 class="commission-title">Komisi C</h3>
+                
+                <div class="position-row">
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Ketua Komisi C</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Ramzi Fadhlulloh Zaidan</div>
+                                <div class="person-class">NPM. 24.25.18C.018</div>
+                            </div>
+                            <p class="position-description">
+                                Memimpin Komisi C yang fokus pada KBPL (Kepribadian Budi Pekerti Luhur) dan 
+                                KTTYME (Ketaqwaan Terhadap Tuhan Yang Maha Esa). Bertanggung jawab atas pembinaan karakter dan spiritual siswa.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Wakil Ketua Komisi C</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Selya Shofwatul Azmi</div>
+                                <div class="person-class">NPM. 24.25.18C.019</div>
+                            </div>
+                            <p class="position-description">
+                                Mendampingi Ketua Komisi C dalam kegiatan pembinaan karakter dan keagamaan. 
+                                Membantu mengkoordinasikan program kerja yang berkaitan dengan nilai-nilai moral dan spiritual.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Komisi D -->
+            <div class="commission-category commission-d">
+                <h3 class="commission-title">Komisi D</h3>
+                
+                <div class="position-row">
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Ketua Komisi D</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Hanifah Safinatunnajah Munadi</div>
+                                <div class="person-class">NPM. 24.25.18D.022</div>
+                            </div>
+                            <p class="position-description">
+                                Memimpin Komisi D yang menaungi bidang PAKS (Presepsi Apresiasi Kreasi Seni) 
+                                dan PPBN (Pendidikan Pendahuluan Bela Negara). Fokus pada pengembangan seni, kreativitas, dan nasionalisme.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="position-card">
+                        <div class="position-header">
+                            <div class="position-name">Wakil Ketua Komisi D</div>
+                        </div>
+                        <div class="position-content">
+                            <div class="position-photo">Foto</div>
+                            <div class="person-info">
+                                <div class="person-name">Reyhan Adla Tsabita</div>
+                                <div class="person-class">NPM. 24.25.18D.023</div>
+                            </div>
+                            <p class="position-description">
+                                Mendampingi Ketua Komisi D dalam mengelola kegiatan seni dan bela negara. 
+                                Membantu mengembangkan bakat seni siswa dan menanamkan nilai-nilai nasionalisme.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-bottom">
+            <button onclick="window.location.href='https://www.instagram.com/mpksmadapwt/'">@mpksmadapwt</button>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
+
+        mobileMenuToggle.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                navMenu.classList.remove('active');
+            });
+        });
+
+        // Header background on scroll
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
